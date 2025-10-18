@@ -14,29 +14,29 @@ POST /auth/login
 
 Request Body:
 {
-  "email": "user@example.com",
-  "phone": "+84901234567",
-  "password": "string"
+"email": "user@example.com",
+"phone": "+84901234567",
+"password": "string"
 }
 
 Response 200:
 {
-  "access_toke=: "eyJhbGc...",
-  "refresh_token": "eyJhbGc...",
-  "expires_in": 3600,
-  "user": {
-    "id": 1,
-    "email": "user@example.com",
-    "full_name": "Nguyễn Văn A",
-    "roles": ["STUDENT", "TEACHER"],
-    "branches": [
-      {
-        "id": 1,
-        "code": "HN-CG",
-        "name": "Cầu Giấy"
-      }
-    ]
-  }
+"access_toke=: "eyJhbGc...",
+"refresh_token": "eyJhbGc...",
+"expires_in": 3600,
+"user": {
+"id": 1,
+"email": "user@example.com",
+"full_name": "Nguyễn Văn A",
+"roles": ["STUDENT", "TEACHER"],
+"branches": [
+{
+"id": 1,
+"code": "HN-CG",
+"name": "Cầu Giấy"
+}
+]
+}
 }
 
 1.2 Refresh Token
@@ -44,13 +44,13 @@ POST /auth/refresh
 
 Request Body:
 {
-  "refresh_token": "eyJhbGc..."
+"refresh_token": "eyJhbGc..."
 }
 
 Response 200:
 {
-  "access_token": "eyJhbGc...",
-  "expires_in": 3600
+"access_token": "eyJhbGc...",
+"expires_in": 3600
 }
 
 1.3 Logout
@@ -71,27 +71,27 @@ page (optional, default: 1)
 limit (optional, default: 20)
 Response 200:
 {
-  "data": [
-    {
-      "id": 1,
-      "center_id": 1,
-      "code": "HN-CG",
-      "name": "Cầu Giấy",
-      "address": "123 Đường ABC, Cầu Giấy, Hà Nội",
-      "location": "21.0285,105.8542",
-      "phone": "+84243xxxx",
-      "capacity": 500,
-      "status": "active",
-      "opening_date": "2020-01-15",
-      "created_at": "2020-01-01T00:00:00Z"
-    }
-  ],
-  "pagination": {
-    "current_page": 1,
-    "total_pages": 5,
-    "total_items": 100,
-    "limit": 20
-  }
+"data": [
+{
+"id": 1,
+"center_id": 1,
+"code": "HN-CG",
+"name": "Cầu Giấy",
+"address": "123 Đường ABC, Cầu Giấy, Hà Nội",
+"location": "21.0285,105.8542",
+"phone": "+84243xxxx",
+"capacity": 500,
+"status": "active",
+"opening_date": "2020-01-15",
+"created_at": "2020-01-01T00:00:00Z"
+}
+],
+"pagination": {
+"current_page": 1,
+"total_pages": 5,
+"total_items": 100,
+"limit": 20
+}
 }
 
 Get Branch Detail
@@ -99,43 +99,43 @@ GET /branches/{id}
 
 Response 200:
 {
-  "id": 1,
-  "center_id": 1,
-  "code": "HN-CG",
-  "name": "Cầu Giấy",
-  "address": "123 Đường ABC, Cầu Giấy, Hà Nội",
-  "location": "21.0285,105.8542",
-  "phone": "+84243xxxx",
-  "capacity": 500,
-  "status": "active",
-  "opening_date": "2020-01-15",
-  "time_slots": [
-    {
-      "id": 1,
-      "name": "Slot 1 - Sáng",
-      "start_time": "08:00:00",
-      "end_time": "10:30:00",
-      "duration_min": 150
-    }
-  ],
-  "resources": [
-    {
-      "id": 1,
-      "resource_type": "ROOM",
-      "name": "Phòng 101",
-      "capacity": 25,
-      "equipment": "Projector, Whiteboard, Air Conditioner"
-    },
-    {
-      "id": 2,
-      "resource_type": "VIRTUAL",
-      "name": "Zoom Account 1",
-      "meeting_url": "https://zoom.us/j/xxxxx",
-      "license_type": "Pro"
-    }
-  ],
-  "created_at": "2020-01-01T00:00:00Z",
-  "updated_at": "2024-01-01T00:00:00Z"
+"id": 1,
+"center_id": 1,
+"code": "HN-CG",
+"name": "Cầu Giấy",
+"address": "123 Đường ABC, Cầu Giấy, Hà Nội",
+"location": "21.0285,105.8542",
+"phone": "+84243xxxx",
+"capacity": 500,
+"status": "active",
+"opening_date": "2020-01-15",
+"time_slots": [
+{
+"id": 1,
+"name": "Slot 1 - Sáng",
+"start_time": "08:00:00",
+"end_time": "10:30:00",
+"duration_min": 150
+}
+],
+"resources": [
+{
+"id": 1,
+"resource_type": "ROOM",
+"name": "Phòng 101",
+"capacity": 25,
+"equipment": "Projector, Whiteboard, Air Conditioner"
+},
+{
+"id": 2,
+"resource_type": "VIRTUAL",
+"name": "Zoom Account 1",
+"meeting_url": "https://zoom.us/j/xxxxx",
+"license_type": "Pro"
+}
+],
+"created_at": "2020-01-01T00:00:00Z",
+"updated_at": "2024-01-01T00:00:00Z"
 }
 
 Create Branch (MANAGER, ADMIN)
@@ -143,25 +143,25 @@ POST /branches
 
 Request Body:
 {
-  "center_id": 1,
-  "code": "HN-HK",
-  "name": "Hoàn Kiếm",
-  "address": "456 Đường XYZ, Hoàn Kiếm, Hà Nội",
-  "location": "21.0285,105.8542",
-  "phone": "+84243yyyy",
-  "capacity": 300,
-  "status": "planned",
-  "opening_date": "2025-03-01"
+"center_id": 1,
+"code": "HN-HK",
+"name": "Hoàn Kiếm",
+"address": "456 Đường XYZ, Hoàn Kiếm, Hà Nội",
+"location": "21.0285,105.8542",
+"phone": "+84243yyyy",
+"capacity": 300,
+"status": "planned",
+"opening_date": "2025-03-01"
 }
 
 Response 201:
 {
-  "id": 5,
-  "center_id": 1,
-  "code": "HN-HK",
-  "name": "Hoàn Kiếm",
-  "status": "planned",
-  "created_at": "2025-01-15T10:30:00Z"
+"id": 5,
+"center_id": 1,
+"code": "HN-HK",
+"name": "Hoàn Kiếm",
+"status": "planned",
+"created_at": "2025-01-15T10:30:00Z"
 }
 
 2.2 Time Slot Templates
@@ -170,26 +170,26 @@ GET /branches/{branch_id}/time-slots
 
 Response 200:
 {
-  "data": [
-    {
-      "id": 1,
-      "branch_id": 1,
-      "name": "Slot 1 - Sáng",
-      "start_time": "08:00:00",
-      "end_time": "10:30:00",
-      "duration_min": 150,
-      "created_at": "2020-01-01T00:00:00Z"
-    },
-    {
-      "id": 2,
-      "branch_id": 1,
-      "name": "Slot 2 - Chiều",
-      "start_time": "14:00:00",
-      "end_time": "16:30:00",
-      "duration_min": 150,
-      "created_at": "2020-01-01T00:00:00Z"
-    }
-  ]
+"data": [
+{
+"id": 1,
+"branch_id": 1,
+"name": "Slot 1 - Sáng",
+"start_time": "08:00:00",
+"end_time": "10:30:00",
+"duration_min": 150,
+"created_at": "2020-01-01T00:00:00Z"
+},
+{
+"id": 2,
+"branch_id": 1,
+"name": "Slot 2 - Chiều",
+"start_time": "14:00:00",
+"end_time": "16:30:00",
+"duration_min": 150,
+"created_at": "2020-01-01T00:00:00Z"
+}
+]
 }
 
 Create Time Slot (MANAGER, CENTER_HEAD)
@@ -197,21 +197,21 @@ POST /branches/{branch_id}/time-slots
 
 Request Body:
 {
-  "name": "Slot 3 - Tối",
-  "start_time": "18:00:00",
-  "end_time": "20:30:00",
-  "duration_min": 150
+"name": "Slot 3 - Tối",
+"start_time": "18:00:00",
+"end_time": "20:30:00",
+"duration_min": 150
 }
 
 Response 201:
 {
-  "id": 3,
-  "branch_id": 1,
-  "name": "Slot 3 - Tối",
-  "start_time": "18:00:00",
-  "end_time": "20:30:00",
-  "duration_min": 150,
-  "created_at": "2025-01-15T10:30:00Z"
+"id": 3,
+"branch_id": 1,
+"name": "Slot 3 - Tối",
+"start_time": "18:00:00",
+"end_time": "20:30:00",
+"duration_min": 150,
+"created_at": "2025-01-15T10:30:00Z"
 }
 
 2.3 Resources (Rooms & Virtual)
@@ -225,30 +225,30 @@ available_start_time (optional): HH:MM:SS
 available_end_time (optional): HH:MM:SS
 Response 200:
 {
-  "data": [
-    {
-      "id": 1,
-      "branch_id": 1,
-      "resource_type": "ROOM",
-      "name": "Phòng 101",
-      "location": "Tầng 1",
-      "capacity": 25,
-      "equipment": "Projector, Whiteboard, Air Conditioner",
-      "is_available": true
-    },
-    {
-      "id": 10,
-      "branch_id": 1,
-      "resource_type": "VIRTUAL",
-      "name": "Zoom Account 1",
-      "meeting_url": "https://zoom.us/j/xxxxx",
-      "meeting_id": "123456789",
-      "account_email": "zoom1@example.com",
-      "license_type": "Pro",
-      "expiry_date": "2025-12-31",
-      "is_available": true
-    }
-  ]
+"data": [
+{
+"id": 1,
+"branch_id": 1,
+"resource_type": "ROOM",
+"name": "Phòng 101",
+"location": "Tầng 1",
+"capacity": 25,
+"equipment": "Projector, Whiteboard, Air Conditioner",
+"is_available": true
+},
+{
+"id": 10,
+"branch_id": 1,
+"resource_type": "VIRTUAL",
+"name": "Zoom Account 1",
+"meeting_url": "https://zoom.us/j/xxxxx",
+"meeting_id": "123456789",
+"account_email": "zoom1@example.com",
+"license_type": "Pro",
+"expiry_date": "2025-12-31",
+"is_available": true
+}
+]
 }
 
 Create Resource (MANAGER, CENTER_HEAD)
@@ -256,33 +256,33 @@ POST /branches/{branch_id}/resources
 
 Request Body (ROOM):
 {
-  "resource_type": "ROOM",
-  "name": "Phòng 201",
-  "location": "Tầng 2",
-  "capacity": 30,
-  "equipment": "Smart TV, Whiteboard, Air Conditioner",
-  "description": "Phòng học lớn, ánh sáng tốt"
+"resource_type": "ROOM",
+"name": "Phòng 201",
+"location": "Tầng 2",
+"capacity": 30,
+"equipment": "Smart TV, Whiteboard, Air Conditioner",
+"description": "Phòng học lớn, ánh sáng tốt"
 }
 
 Request Body (VIRTUAL):
 {
-  "resource_type": "VIRTUAL",
-  "name": "Zoom Account 2",
-  "meeting_url": "https://zoom.us/j/yyyyy",
-  "meeting_id": "987654321",
-  "account_email": "zoom2@example.com",
-  "license_type": "Business",
-  "expiry_date": "2026-06-30"
+"resource_type": "VIRTUAL",
+"name": "Zoom Account 2",
+"meeting_url": "https://zoom.us/j/yyyyy",
+"meeting_id": "987654321",
+"account_email": "zoom2@example.com",
+"license_type": "Business",
+"expiry_date": "2026-06-30"
 }
 
 Response 201:
 {
-  "id": 15,
-  "branch_id": 1,
-  "resource_type": "ROOM",
-  "name": "Phòng 201",
-  "capacity": 30,
-  "created_at": "2025-01-15T10:30:00Z"
+"id": 15,
+"branch_id": 1,
+"resource_type": "ROOM",
+"name": "Phòng 201",
+"capacity": 30,
+"created_at": "2025-01-15T10:30:00Z"
 }
 
 
@@ -296,20 +296,20 @@ status (optional): active|inactive
 page, limit
 Response 200:
 {
-  "data": [
-    {
-      "id": 1,
-      "code": "ENG-GEN",
-      "name": "English General",
-      "description": "Chương trình tiếng Anh giao tiếp tổng quát",
-      "status": "active",
-      "created_by": 5,
-      "created_at": "2020-01-01T00:00:00Z",
-      "levels_count": 6,
-      "courses_count": 12
-    }
-  ],
-  "pagination": {...}
+"data": [
+{
+"id": 1,
+"code": "ENG-GEN",
+"name": "English General",
+"description": "Chương trình tiếng Anh giao tiếp tổng quát",
+"status": "active",
+"created_by": 5,
+"created_at": "2020-01-01T00:00:00Z",
+"levels_count": 6,
+"courses_count": 12
+}
+],
+"pagination": {...}
 }
 
 Create Subject (SUBJECT_LEADER)
@@ -317,20 +317,20 @@ POST /subjects
 
 Request Body:
 {
-  "code": "JPN-GEN",
-  "name": "Japanese General",
-  "description": "Chương trình tiếng Nhật tổng quát từ N5 đến N1",
-  "status": "active"
+"code": "JPN-GEN",
+"name": "Japanese General",
+"description": "Chương trình tiếng Nhật tổng quát từ N5 đến N1",
+"status": "active"
 }
 
 Response 201:
 {
-  "id": 3,
-  "code": "JPN-GEN",
-  "name": "Japanese General",
-  "status": "active",
-  "created_by": 5,
-  "created_at": "2025-01-15T10:30:00Z"
+"id": 3,
+"code": "JPN-GEN",
+"name": "Japanese General",
+"status": "active",
+"created_by": 5,
+"created_at": "2025-01-15T10:30:00Z"
 }
 
 3.2 Levels
@@ -339,30 +339,30 @@ GET /subjects/{subject_id}/levels
 
 Response 200:
 {
-  "data": [
-    {
-      "id": 1,
-      "subject_id": 1,
-      "code": "A1",
-      "name": "Beginner A1",
-      "standard_type": "CEFR",
-      "expected_duration_hours": 60,
-      "sort_order": 1,
-      "description": "Trình độ sơ cấp",
-      "created_at": "2020-01-01T00:00:00Z"
-    },
-    {
-      "id": 2,
-      "subject_id": 1,
-      "code": "A2",
-      "name": "Elementary A2",
-      "standard_type": "CEFR",
-      "expected_duration_hours": 80,
-      "sort_order": 2,
-      "description": "Trình độ cơ bản",
-      "created_at": "2020-01-01T00:00:00Z"
-    }
-  ]
+"data": [
+{
+"id": 1,
+"subject_id": 1,
+"code": "A1",
+"name": "Beginner A1",
+"standard_type": "CEFR",
+"expected_duration_hours": 60,
+"sort_order": 1,
+"description": "Trình độ sơ cấp",
+"created_at": "2020-01-01T00:00:00Z"
+},
+{
+"id": 2,
+"subject_id": 1,
+"code": "A2",
+"name": "Elementary A2",
+"standard_type": "CEFR",
+"expected_duration_hours": 80,
+"sort_order": 2,
+"description": "Trình độ cơ bản",
+"created_at": "2020-01-01T00:00:00Z"
+}
+]
 }
 
 Create Level (SUBJECT_LEADER)
@@ -370,21 +370,21 @@ POST /subjects/{subject_id}/levels
 
 Request Body:
 {
-  "code": "B1",
-  "name": "Intermediate B1",
-  "standard_type": "CEFR",
-  "expected_duration_hours": 100,
-  "sort_order": 3,
-  "description": "Trình độ trung cấp"
+"code": "B1",
+"name": "Intermediate B1",
+"standard_type": "CEFR",
+"expected_duration_hours": 100,
+"sort_order": 3,
+"description": "Trình độ trung cấp"
 }
 
 Response 201:
 {
-  "id": 3,
-  "subject_id": 1,
-  "code": "B1",
-  "name": "Intermediate B1",
-  "created_at": "2025-01-15T10:30:00Z"
+"id": 3,
+"subject_id": 1,
+"code": "B1",
+"name": "Intermediate B1",
+"created_at": "2025-01-15T10:30:00Z"
 }
 
 3.3 Courses
@@ -399,29 +399,29 @@ approved (optional): true|false
 page, limit
 Response 200:
 {
-  "data": [
-    {
-      "id": 1,
-      "subject_id": 1,
-      "level_id": 1,
-      "code": "ENG-A1-V1",
-      "name": "English A1 Course Version 1",
-      "version": 1,
-      "description": "Khóa học tiếng Anh A1 cơ bản",
-      "total_hours": 60,
-      "duration_weeks": 12,
-      "session_per_week": 3,
-      "hours_per_session": 1.5,
-      "status": "active",
-      "approved_by_manager": 10,
-      "approved_at": "2024-12-01T00:00:00Z",
-      "created_by": 5,
-      "created_at": "2024-11-01T00:00:00Z",
-      "phases_count": 3,
-      "sessions_count": 36
-    }
-  ],
-  "pagination": {...}
+"data": [
+{
+"id": 1,
+"subject_id": 1,
+"level_id": 1,
+"code": "ENG-A1-V1",
+"name": "English A1 Course Version 1",
+"version": 1,
+"description": "Khóa học tiếng Anh A1 cơ bản",
+"total_hours": 60,
+"duration_weeks": 12,
+"session_per_week": 3,
+"hours_per_session": 1.5,
+"status": "active",
+"approved_by_manager": 10,
+"approved_at": "2024-12-01T00:00:00Z",
+"created_by": 5,
+"created_at": "2024-11-01T00:00:00Z",
+"phases_count": 3,
+"sessions_count": 36
+}
+],
+"pagination": {...}
 }
 
 Get Course Detail
@@ -429,53 +429,53 @@ GET /courses/{id}
 
 Response 200:
 {
-  "id": 1,
-  "subject_id": 1,
-  "level_id": 1,
-  "code": "ENG-A1-V1",
-  "name": "English A1 Course Version 1",
-  "version": 1,
-  "description": "Khóa học tiếng Anh A1 cơ bản",
-  "total_hours": 60,
-  "duration_weeks": 12,
-  "session_per_week": 3,
-  "hours_per_session": 1.5,
-  "prerequisites": "Không yêu cầu",
-  "target_audience": "Người mới bắt đầu học tiếng Anh",
-  "teaching_methods": "Communicative approach, Task-based learning",
-  "status": "active",
-  "approved_by_manager": 10,
-  "approved_at": "2024-12-01T00:00:00Z",
-  "created_by": 5,
-  "created_at": "2024-11-01T00:00:00Z",
-  "phases": [
-    {
-      "id": 1,
-      "phase_number": 1,
-      "name": "Foundation Phase",
-      "duration_weeks": 4,
-      "learning_focus": "Basic greetings, alphabet, numbers",
-      "sort_order": 1,
-      "sessions_count": 12
-    }
-  ],
-  "clos": [
-    {
-      "id": 1,
-      "code": "CLO-01",
-      "description": "Có thể giới thiệu bản thân và người khác bằng tiếng Anh"
-    }
-  ],
-  "materials": [
-    {
-      "id": 1,
-      "title": "Course Overview Presentation",
-      "url": "https://storage.example.com/courses/1/overview.pdf",
-      "phase_id": null,
-      "uploaded_by": 5,
-      "created_at": "2024-11-01T00:00:00Z"
-    }
-  ]
+"id": 1,
+"subject_id": 1,
+"level_id": 1,
+"code": "ENG-A1-V1",
+"name": "English A1 Course Version 1",
+"version": 1,
+"description": "Khóa học tiếng Anh A1 cơ bản",
+"total_hours": 60,
+"duration_weeks": 12,
+"session_per_week": 3,
+"hours_per_session": 1.5,
+"prerequisites": "Không yêu cầu",
+"target_audience": "Người mới bắt đầu học tiếng Anh",
+"teaching_methods": "Communicative approach, Task-based learning",
+"status": "active",
+"approved_by_manager": 10,
+"approved_at": "2024-12-01T00:00:00Z",
+"created_by": 5,
+"created_at": "2024-11-01T00:00:00Z",
+"phases": [
+{
+"id": 1,
+"phase_number": 1,
+"name": "Foundation Phase",
+"duration_weeks": 4,
+"learning_focus": "Basic greetings, alphabet, numbers",
+"sort_order": 1,
+"sessions_count": 12
+}
+],
+"clos": [
+{
+"id": 1,
+"code": "CLO-01",
+"description": "Có thể giới thiệu bản thân và người khác bằng tiếng Anh"
+}
+],
+"materials": [
+{
+"id": 1,
+"title": "Course Overview Presentation",
+"url": "https://storage.example.com/courses/1/overview.pdf",
+"phase_id": null,
+"uploaded_by": 5,
+"created_at": "2024-11-01T00:00:00Z"
+}
+]
 }
 
 Create Course (SUBJECT_LEADER)
@@ -483,32 +483,32 @@ POST /courses
 
 Request Body:
 {
-  "subject_id": 1,
-  "level_id": 1,
-  "version": 2,
-  "code": "ENG-A1-V2",
-  "name": "English A1 Course Version 2",
-  "description": "Phiên bản cập nhật với phương pháp giảng dạy mới",
-  "total_hours": 60,
-  "duration_weeks": 12,
-  "session_per_week": 3,
-  "hours_per_session": 1.5,
-  "prerequisites": "Không yêu cầu",
-  "target_audience": "Người mới bắt đầu học tiếng Anh",
-  "teaching_methods": "Communicative approach, Flipped classroom",
-  "effective_date": "2025-03-01",
-  "status": "active"
+"subject_id": 1,
+"level_id": 1,
+"version": 2,
+"code": "ENG-A1-V2",
+"name": "English A1 Course Version 2",
+"description": "Phiên bản cập nhật với phương pháp giảng dạy mới",
+"total_hours": 60,
+"duration_weeks": 12,
+"session_per_week": 3,
+"hours_per_session": 1.5,
+"prerequisites": "Không yêu cầu",
+"target_audience": "Người mới bắt đầu học tiếng Anh",
+"teaching_methods": "Communicative approach, Flipped classroom",
+"effective_date": "2025-03-01",
+"status": "active"
 }
 
 Response 201:
 {
-  "id": 15,
-  "code": "ENG-A1-V2",
-  "name": "English A1 Course Version 2",
-  "version": 2,
-  "status": "active",
-  "created_by": 5,
-  "created_at": "2025-01-15T10:30:00Z"
+"id": 15,
+"code": "ENG-A1-V2",
+"name": "English A1 Course Version 2",
+"version": 2,
+"status": "active",
+"created_by": 5,
+"created_at": "2025-01-15T10:30:00Z"
 }
 
 Submit Course for Approval (SUBJECT_LEADER)
@@ -516,35 +516,35 @@ POST /courses/{id}/submit
 
 Response 200:
 {
-  "id": 15,
-  "code": "ENG-A1-V2",
-  "status": "active",
-  "submitted_at": "2025-01-15T10:30:00Z",
-  "message": "Course submitted for approval"
+"id": 15,
+"code": "ENG-A1-V2",
+"status": "active",
+"submitted_at": "2025-01-15T10:30:00Z",
+"message": "Course submitted for approval"
 }
 
-Approve/Reject Course (CENTER_HEAD, MANAGER)
+Approve/Reject Course (MANAGER only - strategic curriculum decision)
 POST /courses/{id}/approve
 
 Request Body:
 {
-  "action": "approve",
-  "rejection_reason": null
+"action": "approve",
+"rejection_reason": null
 }
 
 OR
 {
-  "action": "reject",
-  "rejection_reason": "Nội dung chưa đầy đủ, cần bổ sung thêm bài tập thực hành"
+"action": "reject",
+"rejection_reason": "Nội dung chưa đầy đủ, cần bổ sung thêm bài tập thực hành"
 }
 
 Response 200:
 {
-  "id": 15,
-  "code": "ENG-A1-V2",
-  "approved_by_manager": 10,
-  "approved_at": "2025-01-15T11:00:00Z",
-  "status": "active"
+"id": 15,
+"code": "ENG-A1-V2",
+"approved_by_manager": 10,
+"approved_at": "2025-01-15T11:00:00Z",
+"status": "active"
 }
 
 3.4 Course Phases
@@ -553,19 +553,19 @@ GET /courses/{course_id}/phases
 
 Response 200:
 {
-  "data": [
-    {
-      "id": 1,
-      "course_id": 1,
-      "phase_number": 1,
-      "name": "Foundation Phase",
-      "duration_weeks": 4,
-      "learning_focus": "Basic greetings, alphabet, numbers",
-      "sort_order": 1,
-      "sessions_count": 12,
-      "created_at": "2024-11-01T00:00:00Z"
-    }
-  ]
+"data": [
+{
+"id": 1,
+"course_id": 1,
+"phase_number": 1,
+"name": "Foundation Phase",
+"duration_weeks": 4,
+"learning_focus": "Basic greetings, alphabet, numbers",
+"sort_order": 1,
+"sessions_count": 12,
+"created_at": "2024-11-01T00:00:00Z"
+}
+]
 }
 
 Create Phase (SUBJECT_LEADER)
@@ -573,20 +573,20 @@ POST /courses/{course_id}/phases
 
 Request Body:
 {
-  "phase_number": 2,
-  "name": "Development Phase",
-  "duration_weeks": 4,
-  "learning_focus": "Daily conversations, present tense",
-  "sort_order": 2
+"phase_number": 2,
+"name": "Development Phase",
+"duration_weeks": 4,
+"learning_focus": "Daily conversations, present tense",
+"sort_order": 2
 }
 
 Response 201:
 {
-  "id": 2,
-  "course_id": 1,
-  "phase_number": 2,
-  "name": "Development Phase",
-  "created_at": "2025-01-15T10:30:00Z"
+"id": 2,
+"course_id": 1,
+"phase_number": 2,
+"name": "Development Phase",
+"created_at": "2025-01-15T10:30:00Z"
 }
 
 3.5 Course Sessions (Template)
@@ -595,31 +595,31 @@ GET /phases/{phase_id}/sessions
 
 Response 200:
 {
-  "data": [
-    {
-      "id": 1,
-      "phase_id": 1,
-      "sequence_no": 1,
-      "topic": "Introduction & Greetings",
-      "student_task": "Practice self-introduction with partners",
-      "skill_set": ["speaking", "listening"],
-      "clos": [
-        {
-          "id": 1,
-          "code": "CLO-01",
-          "description": "Có thể giới thiệu bản thân"
-        }
-      ],
-      "materials": [
-        {
-          "id": 5,
-          "title": "Session 1 Slides",
-          "url": "https://storage.example.com/..."
-        }
-      ],
-      "created_at": "2024-11-01T00:00:00Z"
-    }
-  ]
+"data": [
+{
+"id": 1,
+"phase_id": 1,
+"sequence_no": 1,
+"topic": "Introduction & Greetings",
+"student_task": "Practice self-introduction with partners",
+"skill_set": ["speaking", "listening"],
+"clos": [
+{
+"id": 1,
+"code": "CLO-01",
+"description": "Có thể giới thiệu bản thân"
+}
+],
+"materials": [
+{
+"id": 5,
+"title": "Session 1 Slides",
+"url": "https://storage.example.com/..."
+}
+],
+"created_at": "2024-11-01T00:00:00Z"
+}
+]
 }
 
 Create Course Session (SUBJECT_LEADER)
@@ -627,19 +627,19 @@ POST /phases/{phase_id}/sessions
 
 Request Body:
 {
-  "sequence_no": 2,
-  "topic": "Alphabet & Numbers",
-  "student_task": "Complete alphabet worksheet",
-  "skill_set": ["reading", "writing"]
+"sequence_no": 2,
+"topic": "Alphabet & Numbers",
+"student_task": "Complete alphabet worksheet",
+"skill_set": ["reading", "writing"]
 }
 
 Response 201:
 {
-  "id": 2,
-  "phase_id": 1,
-  "sequence_no": 2,
-  "topic": "Alphabet & Numbers",
-  "created_at": "2025-01-15T10:30:00Z"
+"id": 2,
+"phase_id": 1,
+"sequence_no": 2,
+"topic": "Alphabet & Numbers",
+"created_at": "2025-01-15T10:30:00Z"
 }
 
 3.6 PLO & CLO Management
@@ -648,15 +648,15 @@ GET /subjects/{subject_id}/plos
 
 Response 200:
 {
-  "data": [
-    {
-      "id": 1,
-      "subject_id": 1,
-      "code": "PLO-01",
-      "description": "Giao tiếp hiệu quả trong các tình huống hàng ngày",
-      "mapped_clos_count": 5
-    }
-  ]
+"data": [
+{
+"id": 1,
+"subject_id": 1,
+"code": "PLO-01",
+"description": "Giao tiếp hiệu quả trong các tình huống hàng ngày",
+"mapped_clos_count": 5
+}
+]
 }
 
 Create PLO (SUBJECT_LEADER)
@@ -664,16 +664,16 @@ POST /subjects/{subject_id}/plos
 
 Request Body:
 {
-  "code": "PLO-02",
-  "description": "Hiểu và sử dụng ngữ pháp cơ bản"
+"code": "PLO-02",
+"description": "Hiểu và sử dụng ngữ pháp cơ bản"
 }
 
 Response 201:
 {
-  "id": 2,
-  "subject_id": 1,
-  "code": "PLO-02",
-  "description": "Hiểu và sử dụng ngữ pháp cơ bản"
+"id": 2,
+"subject_id": 1,
+"code": "PLO-02",
+"description": "Hiểu và sử dụng ngữ pháp cơ bản"
 }
 
 Get CLOs by Course
@@ -681,22 +681,22 @@ GET /courses/{course_id}/clos
 
 Response 200:
 {
-  "data": [
-    {
-      "id": 1,
-      "course_id": 1,
-      "code": "CLO-01",
-      "description": "Có thể giới thiệu bản thân và người khác",
-      "mapped_plos": [
-        {
-          "id": 1,
-          "code": "PLO-01",
-          "description": "Giao tiếp hiệu quả trong các tình huống hàng ngày"
-        }
-      ],
-      "mapped_sessions_count": 3
-    }
-  ]
+"data": [
+{
+"id": 1,
+"course_id": 1,
+"code": "CLO-01",
+"description": "Có thể giới thiệu bản thân và người khác",
+"mapped_plos": [
+{
+"id": 1,
+"code": "PLO-01",
+"description": "Giao tiếp hiệu quả trong các tình huống hàng ngày"
+}
+],
+"mapped_sessions_count": 3
+}
+]
 }
 
 Create CLO (SUBJECT_LEADER)
@@ -704,16 +704,16 @@ POST /courses/{course_id}/clos
 
 Request Body:
 {
-  "code": "CLO-02",
-  "description": "Có thể hỏi và trả lời các câu hỏi đơn giản về thông tin cá nhân"
+"code": "CLO-02",
+"description": "Có thể hỏi và trả lời các câu hỏi đơn giản về thông tin cá nhân"
 }
 
 Response 201:
 {
-  "id": 2,
-  "course_id": 1,
-  "code": "CLO-02",
-  "description": "Có thể hỏi và trả lời các câu hỏi đơn giản"
+"id": 2,
+"course_id": 1,
+"code": "CLO-02",
+"description": "Có thể hỏi và trả lời các câu hỏi đơn giản"
 }
 
 Map PLO to CLO (SUBJECT_LEADER)
@@ -721,15 +721,15 @@ POST /plos/{plo_id}/clos/{clo_id}/mapping
 
 Request Body:
 {
-  "status": "active"
+"status": "active"
 }
 
 Response 201:
 {
-  "plo_id": 1,
-  "clo_id": 2,
-  "status": "active",
-  "created_at": "2025-01-15T10:30:00Z"
+"plo_id": 1,
+"clo_id": 2,
+"status": "active",
+"created_at": "2025-01-15T10:30:00Z"
 }
 
 Map CLO to Course Session (SUBJECT_LEADER)
@@ -737,15 +737,15 @@ POST /course-sessions/{session_id}/clos/{clo_id}/mapping
 
 Request Body:
 {
-  "status": "active"
+"status": "active"
 }
 
 Response 201:
 {
-  "course_session_id": 5,
-  "clo_id": 2,
-  "status": "active",
-  "created_at": "2025-01-15T10:30:00Z"
+"course_session_id": 5,
+"clo_id": 2,
+"status": "active",
+"created_at": "2025-01-15T10:30:00Z"
 }
 
 3.7 Course Materials
@@ -760,14 +760,14 @@ course_session_id: 5 (optional)
 
 Response 201:
 {
-  "id": 20,
-  "course_id": 1,
-  "phase_id": 1,
-  "course_session_id": 5,
-  "title": "Bài giảng tuần 1",
-  "url": "https://storage.example.com/courses/1/materials/file.pdf",
-  "uploaded_by": 5,
-  "created_at": "2025-01-15T10:30:00Z"
+"id": 20,
+"course_id": 1,
+"phase_id": 1,
+"course_session_id": 5,
+"title": "Bài giảng tuần 1",
+"url": "https://storage.example.com/courses/1/materials/file.pdf",
+"uploaded_by": 5,
+"created_at": "2025-01-15T10:30:00Z"
 }
 
 
@@ -786,27 +786,27 @@ start_date_to (optional): YYYY-MM-DD
 page, limit
 Response 200:
 {
-  "data": [
-    {
-      "id": 1,
-      "branch_id": 1,
-      "course_id": 1,
-      "code": "ENG-A1-2025-01",
-      "name": "English A1 - Sáng T2-T4-T6",
-      "modality": "OFFLINE",
-      "start_date": "2025-02-03",
-      "planned_end_date": "2025-04-25",
-      "schedule_days": [1, 3, 5],
-      "max_capacity": 25,
-      "current_enrollment": 22,
-      "status": "scheduled",
-      "created_by": 8,
-      "approved_by": 10,
-      "approved_at": "2025-01-10T00:00:00Z",
-      "created_at": "2025-01-05T00:00:00Z"
-    }
-  ],
-  "pagination": {...}
+"data": [
+{
+"id": 1,
+"branch_id": 1,
+"course_id": 1,
+"code": "ENG-A1-2025-01",
+"name": "English A1 - Sáng T2-T4-T6",
+"modality": "OFFLINE",
+"start_date": "2025-02-03",
+"planned_end_date": "2025-04-25",
+"schedule_days": [1, 3, 5],
+"max_capacity": 25,
+"current_enrollment": 22,
+"status": "scheduled",
+"created_by": 8,
+"approved_by": 10,
+"approved_at": "2025-01-10T00:00:00Z",
+"created_at": "2025-01-05T00:00:00Z"
+}
+],
+"pagination": {...}
 }
 
 Get Class Detail
@@ -814,41 +814,41 @@ GET /classes/{id}
 
 Response 200:
 {
-  "id": 1,
-  "branch": {
-    "id": 1,
-    "code": "HN-CG",
-    "name": "Cầu Giấy"
-  },
-  "course": {
-    "id": 1,
-    "code": "ENG-A1-V1",
-    "name": "English A1 Course Version 1",
-    "total_hours": 60
-  },
-  "code": "ENG-A1-2025-01",
-  "name": "English A1 - Sáng T2-T4-T6",
-  "modality": "OFFLINE",
-  "start_date": "2025-02-03",
-  "planned_end_date": "2025-04-25",
-  "actual_end_date": null,
-  "schedule_days": [1, 3, 5],
-  "schedule_mapping": {
-    "1": {"start_time": "08:00:00", "end_time": "10:30:00", "slot_id": 1},
-    "3": {"start_time": "08:00:00", "end_time": "10:30:00", "slot_id": 1},
-    "5": {"start_time": "08:00:00", "end_time": "10:30:00", "slot_id": 1}
-  },
-  "max_capacity": 25,
-  "current_enrollment": 22,
-  "status": "scheduled",
-  "created_by": 8,
-  "submitted_at": "2025-01-08T00:00:00Z",
-  "approved_by": 10,
-  "approved_at": "2025-01-10T00:00:00Z",
-  "rejection_reason": null,
-  "created_at": "2025-01-05T00:00:00Z",
-  "sessions_count": 36,
-  "sessions_completed": 0
+"id": 1,
+"branch": {
+"id": 1,
+"code": "HN-CG",
+"name": "Cầu Giấy"
+},
+"course": {
+"id": 1,
+"code": "ENG-A1-V1",
+"name": "English A1 Course Version 1",
+"total_hours": 60
+},
+"code": "ENG-A1-2025-01",
+"name": "English A1 - Sáng T2-T4-T6",
+"modality": "OFFLINE",
+"start_date": "2025-02-03",
+"planned_end_date": "2025-04-25",
+"actual_end_date": null,
+"schedule_days": [1, 3, 5],
+"schedule_mapping": {
+"1": {"start_time": "08:00:00", "end_time": "10:30:00", "slot_id": 1},
+"3": {"start_time": "08:00:00", "end_time": "10:30:00", "slot_id": 1},
+"5": {"start_time": "08:00:00", "end_time": "10:30:00", "slot_id": 1}
+},
+"max_capacity": 25,
+"current_enrollment": 22,
+"status": "scheduled",
+"created_by": 8,
+"submitted_at": "2025-01-08T00:00:00Z",
+"approved_by": 10,
+"approved_at": "2025-01-10T00:00:00Z",
+"rejection_reason": null,
+"created_at": "2025-01-05T00:00:00Z",
+"sessions_count": 36,
+"sessions_completed": 0
 }
 
 Create Class (MANAGER, ACADEMIC_STAFF)
@@ -856,30 +856,30 @@ POST /classes
 
 Request Body:
 {
-  "branch_id": 1,
-  "course_id": 1,
-  "code": "ENG-A1-2025-02",
-  "name": "English A1 - Chiều T3-T5-T7",
-  "modality": "OFFLINE",
-  "start_date": "2025-02-04",
-  "schedule_days": [2, 4, 6],
-  "schedule_mapping": {
-    "2": {"slot_id": 2},
-    "4": {"slot_id": 2},
-    "6": {"slot_id": 2}
-  },
-  "max_capacity": 25
+"branch_id": 1,
+"course_id": 1,
+"code": "ENG-A1-2025-02",
+"name": "English A1 - Chiều T3-T5-T7",
+"modality": "OFFLINE",
+"start_date": "2025-02-04",
+"schedule_days": [2, 4, 6],
+"schedule_mapping": {
+"2": {"slot_id": 2},
+"4": {"slot_id": 2},
+"6": {"slot_id": 2}
+},
+"max_capacity": 25
 }
 
 Response 201:
 {
-  "id": 5,
-  "code": "ENG-A1-2025-02",
-  "status": "draft",
-  "sessions_generated": 36,
-  "created_by": 8,
-  "created_at": "2025-01-15T10:30:00Z", 
-"message": "Class created successfully. 36 sessions generated." 
+"id": 5,
+"code": "ENG-A1-2025-02",
+"status": "draft",
+"sessions_generated": 36,
+"created_by": 8,
+"created_at": "2025-01-15T10:30:00Z",
+"message": "Class created successfully. 36 sessions generated."
 }
 
 #### Submit Class for Approval (ACADEMIC_STAFF)
@@ -896,7 +896,7 @@ POST /classes/{id}/submit
   "message": "Class submitted for approval"
 }
 
-Approve/Reject Class (MANAGER, CENTER_HEAD)
+Approve/Reject Class (CENTER_HEAD for their branch, MANAGER for cross-branch authority)
 POST /classes/{id}/approve
 
 Request Body:
@@ -920,7 +920,7 @@ Response 200:
   "rejection_reason": null
 }
 
-Update Class Schedule (MANAGER)
+Update Class Schedule (ACADEMIC_STAFF with CENTER_HEAD approval)
 PUT /classes/{id}/schedule
 
 Request Body:
@@ -1662,7 +1662,7 @@ Response 200:
   ]
 }
 
-Approve Teacher Request with Substitute (ACADEMIC_STAFF, MANAGER)
+Approve Teacher Request with Substitute (ACADEMIC_STAFF, escalate to CENTER_HEAD if complex)
 POST /teacher-requests/{request_id}/approve
 
 Request Body:
@@ -1691,7 +1691,7 @@ Response 200:
   }
 }
 
-Reject Teacher Request (ACADEMIC_STAFF, MANAGER)
+Reject Teacher Request (ACADEMIC_STAFF, CENTER_HEAD)
 POST /teacher-requests/{request_id}/reject
 
 Request Body:
@@ -2280,7 +2280,7 @@ Error Response 400:
   ]
 }
 
-Approve Transfer Request (ACADEMIC_STAFF, MANAGER)
+Approve Transfer Request (ACADEMIC_STAFF, CENTER_HEAD)
 POST /student-requests/{request_id}/approve-transfer
 
 Response 200:
@@ -2306,7 +2306,7 @@ Response 200:
   "message": "Transfer completed successfully"
 }
 
-Reject Student Request (ACADEMIC_STAFF, MANAGER)
+Reject Student Request (ACADEMIC_STAFF, CENTER_HEAD)
 POST /student-requests/{request_id}/reject
 
 Request Body:
@@ -4529,13 +4529,13 @@ POST /courses
 Step 2: Submit for Approval
 POST /courses/15/submit
 
-Step 3: Approve Course (Center Head)
+Step 3: Approve Course (Manager - strategic curriculum decision)
 POST /courses/15/approve
 {
   "action": "approve"
 }
 
-Step 4: Create Class (Manager)
+Step 4: Create Class (Academic Staff at branch)
 POST /classes
 {
   "branch_id": 1,
@@ -4570,7 +4570,7 @@ Step 7: Validate and Submit Class
 POST /classes/5/validate
 POST /classes/5/submit
 
-Step 8: Approve Class (Manager/Center Head)
+Step 8: Approve Class (Center Head for their branch, Manager for cross-branch)
 POST /classes/5/approve
 {
   "action": "approve"
@@ -4619,10 +4619,10 @@ POST /teachers/5/requests
   "note": "Có việc gia đình đột xuất"
 }
 
-Step 2: Manager Finds Substitutes
+Step 2: Academic Staff Finds Substitutes
 GET /teacher-requests/10/substitute-teachers
 
-Step 3: Manager Approves with Substitute
+Step 3: Academic Staff Approves with Substitute
 POST /teacher-requests/10/approve
 {
   "substitute_teacher_id": 8,

@@ -35,11 +35,14 @@ Route: /dashboard
  Purpose: Điều hướng user đến dashboard phù hợp với role
  Logic: Check user.roles → Redirect
 yaml
-- STUDENT → /dashboards/student
-- TEACHER → /dashboards/teacher  
-- ACADEMIC_STAFF → /dashboards/center-head
+- ADMIN → /dashboards/admin
 - MANAGER → /dashboards/manager
 - CENTER_HEAD → /dashboards/center-head
+- SUBJECT_LEADER → /dashboards/subject-leader
+- ACADEMIC_STAFF → /dashboards/academic-staff (⚠️ FIXED: Was incorrectly pointing to center-head)
+- TEACHER → /dashboards/teacher
+- STUDENT → /dashboards/student
+- QA → /dashboards/qa
 
 II. ORGANIZATION & RESOURCES
 2.1 Branches List Page
@@ -288,16 +291,17 @@ yaml
     - Breadcrumb
     - Status Badge: bind_from: response.status
     - ButtonGroup:
-        - Button[	]: (SUBJECT_LEADER)
-        - Button[submit]: "Gửi duyệt" → POST /courses/:id/submit
-        - Button[approve]: "Phê duyệt" (MANAGER, CENTER_HEAD)
+        - Button[edit]: "Chỉnh sửa" (SUBJECT_LEADER)
+        - Button[submit]: "Gửi duyệt" → POST /courses/:id/submit (SUBJECT_LEADER)
+        - Button[approve]: "Phê duyệt" (MANAGER only - strategic approval)
+        - Button[reject]: "Từ chối" (MANAGER only)
 
 - Tabs:
     - Tab[Overview]:
         - Basic info: code, name, version, description
         - total_hours, duration_weeks, session_per_week
         - prerequisites, target_audience, teaching_methods
-    
+
     - Tab[Phases]:
         - Accordion/List:
             bind_from: response.phases[]
@@ -305,16 +309,26 @@ yaml
               - phase_number, name, duration_weeks
               - learning_focus, sessions_count
               - Button[view sessions]: Navigate to phase detail
-    
+
     - Tab[CLOs]:
         - Button[add]: "Thêm CLO"
+        - Button[map to PLO]: "Map với PLO" → Open mapping modal
         - Table:
             bind_from: response.clos[]
             columns:
               - code, description
-              - mapped_plos, mapped_sessions_count
-              - actions: edit, delete, map to PLO
-    
+              - mapped_plos: Display PLO badges
+              - mapped_sessions_count
+              - actions: edit, delete, map to sessions
+
+    - Tab[PLO ↔ CLO ↔ Session Mapping]: ⭐ NEW
+        - Purpose: Curriculum integrity mapping for accreditation
+        - Interactive Mapping Editor:
+            - Tree view showing PLO → CLO → Sessions hierarchy
+            - Drag-and-drop interface to map CLOs to Sessions
+            - Visual indicators for coverage (which sessions cover which CLOs)
+            - Export mapping report for accreditation
+
     - Tab[Materials]:
         - Upload area
         - List:
@@ -595,9 +609,19 @@ yaml
 - Header:
     - Session info: date, time, class_code, topic
     - Auto-save indicator
+    - ⭐ NEW: Attendance Lock Status:
+        - If not locked: Display countdown "Khóa sau: 3h 45m" (based on config)
+        - If locked: Display "🔒 Đã khóa" badge + locked_at timestamp
+        - Only ADMIN/MANAGER can unlock: Button[unlock] → POST /sessions/:id/attendance/unlock
+
+- ⭐ Lock Warning Banner:
+    - If session.end_time + lock_hours is approaching:
+        - Alert: "Điểm danh sẽ tự động khóa sau {countdown}. Vui lòng hoàn tất trước thời gian khóa."
+        - Color: Warning (yellow/orange)
 
 - List[Students]:
     bind_from: GET /sessions/:id/attendance response.students[]
+    disabled_if: is_locked = true (unless user is ADMIN/MANAGER)
     render for each student:
       - Avatar
       - student_code, student_name
@@ -605,8 +629,10 @@ yaml
       - Radio Group / Button Group[attendance_status]:
           options: present|absent|late|excused
           bind_to: attendances[].attendance_status
+          disabled: is_locked = true
       - Textarea[note]: optional
           bind_to: attendances[].note
+          disabled: is_locked = true
 
 - Summary Panel (sticky):
     - Present: count
@@ -615,14 +641,16 @@ yaml
     - Excused: count
 
 - Actions:
-    - Button[mark all present]: Quick action
-    - Button[save]: POST /sessions/:id/attendance
-    - Button[submit & finish]: POST attendance + POST session report
+    - Button[mark all present]: Quick action (disabled if locked)
+    - Button[save]: POST /sessions/:id/attendance (disabled if locked)
+    - Button[submit & finish]: POST attendance + POST session report (disabled if locked)
 Flow:
-Teacher load page → GET attendance list
-Mark each student → Auto-save or manual save
+Teacher load page → GET attendance list → Check is_locked status
+If locked: Show locked state, disable all inputs
+If not locked: Mark each student → Auto-save or manual save
 Click "Lưu" → POST /sessions/:id/attendance
 After attendance → Navigate to session report form
+System auto-locks after T hours (configured in /admin/settings)
 
 5.3 Session Report Form
 Route: /sessions/:id/report
@@ -754,6 +782,332 @@ yaml
         - Select[session_id]: From teacher's upcoming sessions
     - Textarea[note]
 - Button[submit]: POST /teachers/:id/requests
+
+VI-B. STUDENT REQUEST MANAGEMENT ⭐ NEW MODULE
+**Purpose**: Handle student requests for absence, make-up sessions, and class transfers
+**Roles**: STUDENT (submit), ACADEMIC_STAFF (approve), CENTER_HEAD (approve transfers)
+
+6B.1 Student Request List Page (Academic Staff View)
+Route: /requests/students
+ Purpose: Academic Staff xem và xử lý yêu cầu của học viên
+ Mapped API: GET /student-requests (⚠️ MISSING in API - needs to be added)
+Components:
+yaml
+- Header:
+    - Title: "Yêu cầu từ Học viên"
+    - Button[export]: "Xuất báo cáo"
+
+- Filters:
+    - Select[branch_id]: Filter by branch
+    - Select[request_type]: absence|makeup|transfer|all
+    - Select[status]: pending|approved|rejected|all
+    - DateRange[submitted_date]
+    - Input[student_search]: Search by student name/code
+
+- Table:
+    columns:
+      - student_code, student_name
+      - request_type: Badge colored by type
+      - current_class, target_session/target_class
+      - submitted_at, priority
+      - status: Badge
+      - actions:
+          - view: Open detail modal
+          - approve: (if pending)
+          - reject: (if pending)
+    bind_from: response.data[]
+    row_color:
+      - pending + urgent: orange
+      - pending: yellow
+      - approved: green
+      - rejected: gray
+
+- Pagination
+
+6B.2 Student Request Detail Modal
+Components:
+yaml
+- Header:
+    - Request type badge
+    - Status badge
+    - Student info: code, name, current class
+
+- Content (varies by type):
+
+    If type = ABSENCE:
+      - Target session: date, time, topic, class_code
+      - Reason: student note
+      - Submitted at
+      - Actions:
+          - Button[approve]: POST /student-requests/:id/approve
+            → Updates student_session.attendance_status to 'excused'
+          - Button[reject]: POST /student-requests/:id/reject
+
+    If type = MAKEUP:
+      - Original missed session: date, topic, class_code
+      - Proposed makeup session: date, time, topic, different class
+      - Capacity check: "Available slots: 3/25"
+      - Validation warning (if any): "Cảnh báo: Nội dung không khớp"
+      - Actions:
+          - Button[approve]: POST /student-requests/:id/approve
+            → Creates new student_session with is_makeup=true
+            → Marks original session as 'excused'
+          - Button[reject with reason]
+
+    If type = TRANSFER:
+      - Current class: code, schedule, modality, progress
+      - Target class: code, schedule, modality
+      - Effective date
+      - Content mapping validation:
+          - Display gap analysis (if any)
+          - Example: "Session 15, 17 không có trong lớp mới"
+      - Capacity check: "Lớp mới: 20/25 slots"
+      - Actions:
+          - Button[validate]: POST /student-requests/:id/validate-transfer
+            → Shows detailed validation result
+          - Button[approve]: POST /student-requests/:id/approve
+            → Execute transfer transaction (see business flow 3.5.3)
+          - Button[reject with reason]
+
+- Audit Trail:
+    - Submitted by, submitted at
+    - Decided by, decided at (if processed)
+    - Resolution note
+
+6B.3 Student Request Creation (Student View)
+Route: /students/:id/requests/new or modal from student dashboard
+Components:
+yaml
+- Select[request_type]: "Loại yêu cầu"
+    options:
+      - absence: "Báo nghỉ có phép"
+      - makeup: "Học bù"
+      - transfer: "Chuyển lớp"
+
+- Conditional Form Fields:
+
+    If ABSENCE selected:
+      - Select[target_session_id]: "Buổi học sẽ nghỉ"
+        options: GET /students/:id/sessions?status=planned&date_from=today
+        display: date, time, topic, class_code
+      - Textarea[reason]: "Lý do" (required)
+      - DatePicker: auto-filled from session
+      - Note: "Vui lòng gửi trước {X} ngày (cấu hình từ system settings)"
+
+    If MAKEUP selected:
+      Step 1: Select missed session
+        - Select[target_session_id]: "Buổi học đã nghỉ"
+          options: GET /students/:id/sessions?attendance_status=absent
+          display: date, topic, class_code
+
+      Step 2: System finds available makeup sessions
+        - on_select_session:
+            → GET /student-requests/makeup/available-sessions?student_id=X&session_id=Y
+            → API returns: sessions with same course_session_id, capacity available
+
+        - Display available makeup sessions:
+            List/Cards showing:
+              - class_code, date, time
+              - branch, modality (OFFLINE/ONLINE)
+              - teacher
+              - available_slots: "3/25"
+              - capacity_warning if almost full
+            - Select[makeup_session_id]
+
+      - Textarea[note]: Optional reason
+      - Submit: POST /students/:id/requests
+
+    If TRANSFER selected:
+      Step 1: Display current class
+        - Show current class details (read-only)
+
+      Step 2: Select target class
+        - Filter compatible classes:
+            → GET /classes?course_id={same_course}&status=scheduled|ongoing&branch_id={optional}
+        - Display compatible classes:
+            - class_code, schedule, modality, branch
+            - start_date, current_enrollment/max_capacity
+            - Select[target_class_id]
+
+      Step 3: Validation & effective date
+        - DatePicker[effective_date]: "Ngày bắt đầu học lớp mới"
+        - Button[validate]: POST /student-requests/validate-transfer
+            → Shows validation result:
+              - Capacity OK/Full
+              - Content gap analysis (if any)
+              - Schedule conflict (if any)
+        - Textarea[reason]
+
+      - Submit: POST /students/:id/requests
+
+- Actions:
+    - Button[cancel]
+    - Button[submit]: Creates request with status='pending'
+
+6B.4 Student Request Status Page (Student View)
+Route: /students/:id/requests or /dashboards/student (section)
+Components:
+yaml
+- My Requests List:
+    bind_from: GET /students/:id/requests
+    - Card for each request:
+        - type badge, status badge
+        - Submitted date
+        - Summary: "Yêu cầu học bù cho Session 15 - Listening Practice"
+        - If pending: "Đang chờ xử lý"
+        - If approved: "Đã duyệt bởi {staff_name} ngày {date}"
+        - If rejected: "Từ chối: {reason}"
+        - Button[view details]
+        - Button[cancel]: if status=pending
+
+VI-C. TEACHER REQUEST MANAGEMENT ⭐ NEW MODULE
+**Purpose**: Handle teacher leave, OT registration, reschedule, and swap requests
+**Roles**: TEACHER (submit), ACADEMIC_STAFF (approve/handle), MANAGER (escalated)
+
+6C.1 Teacher Request List Page (Academic Staff View)
+Route: /requests/teachers
+ Purpose: Academic Staff xem và xử lý yêu cầu của giáo viên
+ Mapped API: GET /teacher-requests (⚠️ MISSING in API - needs to be added)
+Components:
+yaml
+- Header:
+    - Title: "Yêu cầu từ Giáo viên"
+    - Tabs:
+        - Tab[Pending]: Chỉ hiện pending (urgent)
+        - Tab[All]: Tất cả requests
+
+- Filters:
+    - Select[request_type]: leave|ot|reschedule|swap|all
+    - Select[status]: pending|approved|rejected
+    - DateRange[session_date]
+
+- Table:
+    columns:
+      - teacher_name, employee_code
+      - request_type: Badge
+      - session: date, time, class_code, topic
+      - submitted_at
+      - status
+      - resolution: Summary of solution (if approved)
+      - actions:
+          - view: Detail modal
+          - handle: (if type=leave and pending) → Open solution modal
+          - approve: (if type=ot)
+          - reject
+    bind_from: response.data[]
+    row_color:
+      - leave + pending: red (urgent - needs immediate solution)
+      - pending: yellow
+      - approved: green
+
+6C.2 Teacher Leave Request Handling (Critical Flow)
+Purpose: Academic Staff must find solution before approving
+Modal Components:
+yaml
+- Header:
+    - "Xử lý yêu cầu nghỉ phép"
+    - Teacher: name, employee_code
+    - Session: date, time, class_code, topic
+    - Reason: teacher's note
+    - Urgency indicator
+
+- Solution Options (Radio Group):
+    - Option A: Find Substitute Teacher ⭐ MOST COMMON
+    - Option B: Reschedule Session
+    - Option C: Cancel Session (last resort)
+
+- If Option A selected: FIND SUBSTITUTE
+    - System auto-searches:
+        → GET /teacher-requests/:id/substitute-teachers
+        → API returns available teachers ranked by:
+          - Priority 1: Teachers with OT registration for that exact slot
+          - Priority 2: Teachers with regular availability + skill match
+
+    - Display Available Substitutes:
+        List/Cards:
+          - teacher_name, employee_code
+          - skills: badges (match with session.skill_set)
+          - availability_type: "OT đăng ký" (badge) or "Lịch thường xuyên"
+          - current_workload: "12h tuần này"
+          - rating: if available
+          - Button[select]
+
+    - If no substitutes found:
+        - Alert: "Không tìm thấy giáo viên thay thế. Vui lòng chọn Option B hoặc C"
+
+    - Selected substitute confirmation:
+        - Display: "GV {name} sẽ thay thế"
+        - Auto-create OT request if applicable
+        - Button[approve & assign]:
+            → POST /teacher-requests/:id/approve
+            → body: { resolution: 'substitute', substitute_teacher_id: X }
+            → Backend executes:
+              - Update teaching_slot (change teacher)
+              - Create OT request for substitute
+              - Notify students of teacher change
+
+- If Option B selected: RESCHEDULE SESSION
+    - DatePicker[new_date]: Select new date
+    - System finds available slots on new date:
+        → GET /sessions/available-slots?date={new_date}&teacher_id={original_teacher}&resource_id={current_resource}
+    - Display available slots:
+        - time_slot, resource availability, no conflicts
+        - Select[new_slot]
+    - Button[approve & reschedule]:
+        → POST /teacher-requests/:id/approve
+        → body: { resolution: 'reschedule', new_date: X, new_time: Y }
+        → Backend creates new session, marks old as cancelled, transfers students
+
+- If Option C selected: CANCEL SESSION
+    - Warning: "Tất cả học viên sẽ được đánh dấu 'excused'. Chỉ dùng khi không có giải pháp khác."
+    - Textarea[cancellation_reason]: Required
+    - Button[approve & cancel]:
+        → POST /teacher-requests/:id/approve
+        → body: { resolution: 'cancel', reason: X }
+        → Backend: cancel session, mark all students 'excused', notify students
+
+6C.3 Teacher OT Registration
+Route: /teachers/:id/availability/overrides
+Components:
+yaml
+- Purpose: Teacher registers extra availability for OT opportunities
+- Calendar View: Show teacher's regular schedule + existing overrides
+- Button[add OT availability]: "Đăng ký khung giờ OT"
+- Modal Form:
+    - DatePicker[date]
+    - TimePicker[start_time, end_time]
+    - Textarea[note]: Optional
+    - Toggle[recurring]: If weekly recurring OT
+    - Submit: POST /teachers/:id/availability/overrides
+        → Creates teacher_availability_override with is_available=true
+
+- OT History:
+    - Table: sessions taught as OT
+      columns: date, class, hours, status
+      bind_from: GET /teacher-requests?teacher_id=X&request_type=ot&status=approved
+
+6C.4 Teacher Request Creation (Teacher View)
+Route: /teachers/:id/requests/new
+Components:
+yaml
+- Select[request_type]:
+    - leave: "Xin nghỉ phép"
+    - reschedule: "Đổi lịch dạy"
+    - swap: "Hoán đổi buổi với GV khác" (future feature)
+
+- If LEAVE:
+    - Select[session_id]: "Buổi học cần nghỉ"
+      options: GET /teachers/:id/sessions?status=planned&date_from=today
+      display: date, time, class_code, topic
+    - Textarea[reason]: Required
+    - Note: "Academic Staff sẽ tìm giáo viên thay thế"
+    - Submit: POST /teachers/:id/requests
+
+- If RESCHEDULE:
+    - Select[session_id]: "Buổi học cần đổi"
+    - DatePicker[preferred_new_date]
+    - Textarea[reason]
+    - Submit: POST /teachers/:id/requests
 
 VII. STUDENT OPERATIONS
 7.1 Student Profile Page
@@ -1245,6 +1599,228 @@ yaml
         - severity color coding
 
 X. DASHBOARDS
+10.0 Admin Dashboard ⭐ NEW
+Route: /dashboards/admin
+ Purpose: Dashboard cho System Administrator
+ Mapped API: GET /dashboards/admin (⚠️ MISSING - needs to be added)
+Components:
+yaml
+- Header:
+    - Title: "Admin Dashboard - Toàn hệ thống"
+    - DateRange selector: week|month|quarter
+
+- Overview Cards:
+    - Card[Total Users]: All system users
+    - Card[Total Centers]: active/inactive
+    - Card[Total Branches]: active/inactive
+    - Card[System Health]: healthy|degraded|down → Link to /admin/health
+
+- Section[System Activity (Last 24h)]:
+    - Logins: count, by role breakdown
+    - API calls: total, errors
+    - Failed login attempts: security monitoring
+    - Link to /admin/audit-logs
+
+- Section[User Management]:
+    - New users this week
+    - Inactive users (last login > 30 days)
+    - Pending user activations
+    - Link to /admin/users
+
+- Section[Data Statistics]:
+    - Total classes: by status
+    - Total enrollments: active/completed
+    - Total sessions: planned/done
+    - Total attendance records
+
+- Section[System Settings]:
+    - Quick access cards:
+        - Attendance lock config → /admin/settings
+        - Request policies → /admin/settings
+        - Notification settings → /admin/settings
+
+- Section[Critical Alerts]:
+    - System errors (if any)
+    - Failed jobs/tasks
+    - Database/storage warnings
+    - Security alerts
+
+10.0B Academic Staff Dashboard ⭐ NEW (⚠️ FIXED: Was missing, incorrectly mapped to center-head)
+Route: /dashboards/academic-staff
+ Purpose: Dashboard cho Academic Staff (Giáo vụ) - Day-to-day operations
+ Mapped API: GET /dashboards/academic-staff (⚠️ MISSING - needs to be added)
+Components:
+yaml
+- Header:
+    - Title: "Academic Staff Dashboard"
+    - Select[branch_id]: Filter by assigned branch (if multi-branch)
+    - DatePicker[date]: default today
+
+- KPI Cards Row:
+    - Card[My Active Classes]: Classes I'm managing
+    - Card[Pending Student Requests]: Urgent count
+    - Card[Pending Teacher Requests]: Urgent count (especially leave)
+    - Card[Today's Sessions]: Total sessions happening today
+
+- Section[Urgent Actions] ⭐ KEY FEATURE:
+    bind_from: response.urgent_tasks
+    - Alert cards with priority sorting:
+        - Teacher leave requests (RED - requires immediate solution)
+        - Student transfer requests (YELLOW - capacity sensitive)
+        - Classes pending submission/approval
+        - Conflict warnings (resource/teacher)
+        - Missing attendance records
+    - Each alert:
+        - type, severity badge
+        - message: "GV Nguyễn Văn A xin nghỉ Session 15 - cần tìm GV thay"
+        - action button: "Xử lý ngay"
+
+- Section[My Classes]:
+    bind_from: response.my_classes[]
+    - Table/Cards:
+        - class_code, name, status
+        - enrollment: current/max
+        - next_session: date, time
+        - conflicts: if any (red badge)
+        - actions:
+            - view: /classes/:id
+            - assign teacher: Modal
+            - enroll students: Modal
+
+- Section[Today's Schedule]:
+    bind_from: response.today_sessions[]
+    - Timeline view or Table:
+        - time, class_code
+        - teacher (green if assigned, red if missing)
+        - resource (green if assigned, red if conflict)
+        - students_count
+        - status: planned|ongoing|done
+
+- Section[Request Queue]:
+    - Tabs:
+        - Tab[Student Requests]: Count + link to /requests/students
+        - Tab[Teacher Requests]: Count + link to /requests/teachers
+    - Show recent 5 pending requests per tab
+    - Link to full pages
+
+- Section[Pending Approvals]:
+    - Classes I created → waiting for Center Head/Manager approval
+    - Table: class_code, course, submitted_at, status
+
+10.0C Subject Leader Dashboard ⭐ NEW
+Route: /dashboards/subject-leader
+ Purpose: Dashboard cho Subject Leader - Curriculum design
+ Mapped API: GET /dashboards/subject-leader (⚠️ MISSING - needs to be added)
+Components:
+yaml
+- Header:
+    - Title: "Subject Leader Dashboard"
+    - Select[subject_id]: Filter by my subjects
+
+- KPI Cards:
+    - Card[My Subjects]: Total subjects I manage
+    - Card[Courses]: draft/submitted/approved
+    - Card[Pending Approvals]: Courses waiting for Manager approval
+    - Card[Active Classes]: Classes using my courses
+
+- Section[Curriculum Development]:
+    bind_from: response.my_courses[]
+    - Status tabs:
+        - Tab[Draft]: Courses in progress
+        - Tab[Submitted]: Awaiting Manager approval
+        - Tab[Approved]: Ready for use
+        - Tab[In Use]: Currently being taught
+    - Table:
+        - code, name, version, level
+        - phases_count, sessions_count
+        - clo_mapping_complete: Yes/No badge
+        - status, approved_by
+        - actions:
+            - edit: /courses/:id/edit
+            - submit for approval: POST /courses/:id/submit
+            - view usage: Classes using this course
+
+- Section[PLO/CLO Management]:
+    bind_from: response.plos_clos_summary
+    - By subject breakdown:
+        - subject_name
+        - total_plos, total_clos
+        - mapping_coverage: "85% sessions mapped"
+    - Link to mapping editor
+
+- Section[Course Usage Analytics]:
+    bind_from: response.course_usage[]
+    - Table:
+        - course_name
+        - classes_using: count
+        - total_students: across all classes
+        - avg_completion_rate
+        - avg_clo_attainment
+
+- Section[Feedback on My Courses]:
+    bind_from: response.course_feedback
+    - Average rating by course
+    - Recent feedback comments
+    - Link to full feedback report
+
+10.0D QA Dashboard ⭐ NEW
+Route: /dashboards/qa
+ Purpose: Dashboard cho QA staff - Quality monitoring
+ Mapped API: GET /dashboards/qa (⚠️ MISSING - needs to be added)
+Components:
+yaml
+- Header:
+    - Title: "QA Dashboard"
+    - Select[branch_id]: Filter by branch
+    - DateRange: default this month
+
+- KPI Cards:
+    - Card[QA Reports]: open/closed
+    - Card[Classes Monitored]: This month
+    - Card[Avg Student Satisfaction]: Overall rating
+    - Card[Low-Rated Sessions]: Count (rating < 3)
+
+- Section[Quality Alerts]:
+    bind_from: response.quality_alerts[]
+    - Alert cards:
+        - Low attendance class: "Lớp A1-Mon: 65% attendance"
+        - Low feedback rating: "Session 15 - GV X: 2.5 stars"
+        - Syllabus deviation: "Lớp B1-Tue: Behind schedule"
+        - CLO non-attainment: "CLO-03: Only 60% students achieved"
+    - Each alert:
+        - severity, class/session info
+        - metric value vs. threshold
+        - action button: "Create QA Report"
+
+- Section[My QA Reports]:
+    bind_from: response.my_reports[]
+    - Table:
+        - report_type, date_observed
+        - scope: class/session/phase
+        - findings: summary
+        - action_items
+        - status: open|in_progress|resolved
+        - actions:
+            - view, edit, close
+
+- Section[Student Feedback Analysis]:
+    bind_from: response.feedback_analysis
+    - Chart: Rating distribution over time
+    - Table: Low-rated classes (avg < 3.5)
+    - Word cloud: Common feedback themes
+
+- Section[Attendance Monitoring]:
+    bind_from: response.attendance_monitoring
+    - Classes with attendance < threshold
+    - Students with high absence rate (alert)
+    - Link to /reports/attendance
+
+- Section[CLO Attainment Monitoring]:
+    bind_from: response.clo_monitoring
+    - By course: CLO achievement rate
+    - Low-attainment CLOs (need intervention)
+    - Link to /reports/clo-attainment
+
 10.1 Center Head Dashboard
 Route: /dashboards/center-head
  Purpose: Dashboard cho Center Head
@@ -1866,8 +2442,375 @@ yaml
 - Protected routes: Check user role
 - Breadcrumb: Auto-generate from route
 
-Document Version: 1.0
-Generated From: API Design Document v1.0
-Last Updated: 2025-10-16
-Maintained by: EMS Frontend Team
+---
+
+## XIX. CHANGELOG & CRITICAL FIXES ⭐
+
+**Document Version: 2.0 - COMPREHENSIVE ALIGNMENT UPDATE**
+**Previous Version**: 1.0 (Generated from API Design v1.0)
+**Updated**: 2025-10-19
+**Updated By**: Based on Business Context v1.0 alignment analysis
+**Maintained by**: EMS Frontend Team
+
+### 19.1 Critical Mismatches Fixed
+
+#### ❌ FIXED: Incorrect Dashboard Role Mapping (Section 1.2)
+**Previous (WRONG)**:
+```yaml
+ACADEMIC_STAFF → /dashboards/center-head  # ❌ Nhầm lẫn nghiêm trọng!
+CENTER_HEAD → /dashboards/center-head
+```
+
+**Updated (CORRECT)**:
+```yaml
+ADMIN → /dashboards/admin                    # ✅ Thêm mới
+MANAGER → /dashboards/manager
+CENTER_HEAD → /dashboards/center-head
+SUBJECT_LEADER → /dashboards/subject-leader # ✅ Thêm mới
+ACADEMIC_STAFF → /dashboards/academic-staff # ✅ SỬA: Tách riêng dashboard
+TEACHER → /dashboards/teacher
+STUDENT → /dashboards/student
+QA → /dashboards/qa                          # ✅ Thêm mới
+```
+
+**Impact**: Academic Staff (Giáo vụ) và Center Head (Trưởng chi nhánh) là hai vai trò HOÀN TOÀN KHÁC BIỆT với trách nhiệm khác nhau:
+- **Academic Staff**: Day-to-day operations (tạo lớp, enroll, xử lý requests, assign teachers)
+- **Center Head**: Strategic branch management (approve classes, monitor KPIs)
+
+---
+
+### 19.2 NEW MODULES ADDED (⚠️ Previously Missing)
+
+#### ✅ VI-B: STUDENT REQUEST MANAGEMENT (Section 6B.1 - 6B.4)
+**Routes**:
+- `/requests/students` - Academic Staff xử lý requests
+- `/students/:id/requests/new` - Student tạo request
+- `/students/:id/requests` - Student xem status
+
+**Request Types** (theo Business Context 3.5):
+1. **Absence Request**: Báo nghỉ có phép
+2. **Make-up Request**: Học bù (complex flow - same `course_session_id`)
+3. **Transfer Request**: Chuyển lớp (most complex - content mapping validation)
+
+**Missing APIs** (⚠️ Backend cần implement):
+- `GET /student-requests`
+- `POST /student-requests/:id/approve`
+- `POST /student-requests/:id/reject`
+- `GET /student-requests/makeup/available-sessions`
+- `POST /student-requests/:id/validate-transfer`
+
+---
+
+#### ✅ VI-C: TEACHER REQUEST MANAGEMENT (Section 6C.1 - 6C.4)
+**Routes**:
+- `/requests/teachers` - Academic Staff xử lý requests
+- `/teachers/:id/requests/new` - Teacher tạo request
+- `/teachers/:id/availability/overrides` - OT registration
+
+**Request Types** (theo Business Context 3.6):
+1. **Leave Request**: Nghỉ phép (⭐ CRITICAL - requires immediate solution)
+2. **OT Registration**: Đăng ký giờ tăng ca
+3. **Reschedule Request**: Đổi lịch dạy
+4. **Swap Request**: Hoán đổi buổi (future feature)
+
+**Key Business Rule**: Leave request chỉ được approve KHI ĐÃ CÓ giải pháp:
+- Option A: Find substitute teacher (ưu tiên OT registered)
+- Option B: Reschedule session
+- Option C: Cancel session (last resort)
+
+**Missing APIs** (⚠️ Backend cần implement):
+- `GET /teacher-requests`
+- `GET /teacher-requests/:id/substitute-teachers` (⭐ CRITICAL)
+- `POST /teacher-requests/:id/approve` (with resolution)
+- `POST /teachers/:id/availability/overrides` (OT registration)
+
+---
+
+#### ✅ ATTENDANCE LOCK FUNCTIONALITY (Section 5.2 - Updated)
+**Business Rule** (từ Business Context 4.7):
+- Attendance tự động lock sau **T hours** (configurable) kể từ session.end_time
+- Chỉ ADMIN/MANAGER có thể unlock (with audit trail)
+
+**UI Updates**:
+- ⏱️ Countdown timer: "Khóa sau: 3h 45m"
+- 🔒 Lock badge và timestamp khi đã lock
+- Disable tất cả inputs khi locked
+- Warning banner khi sắp lock
+
+**Missing API Fields**:
+- `is_locked`: boolean (in session response)
+- `locked_at`: timestamp
+- `POST /sessions/:id/attendance/unlock` (ADMIN/MANAGER only)
+
+---
+
+#### ✅ PLO ↔ CLO ↔ SESSION MAPPING (Section 3.4 - New Tab)
+**Purpose**: Curriculum integrity for accreditation (theo Business Context 3.1)
+
+**Features**:
+- Interactive tree view: PLO → CLO → Sessions
+- Drag-and-drop mapping interface
+- Visual coverage indicators
+- Export mapping report
+
+**Existing API Support**:
+- `GET /subjects/:id/plos`
+- `GET /courses/:id/clos`
+- `GET /plos/:id/clos` (mapping PLO-CLO)
+- `GET /course-sessions/:id/clos` (mapping CLO-Session)
+
+---
+
+### 19.3 NEW DASHBOARDS ADDED
+
+#### ✅ 10.0: Admin Dashboard (`/dashboards/admin`)
+**Purpose**: System-wide monitoring and administration
+**Key Sections**:
+- System health & activity monitoring
+- User management overview
+- Data statistics
+- Critical alerts
+
+**Missing API**: `GET /dashboards/admin`
+
+---
+
+#### ✅ 10.0B: Academic Staff Dashboard (`/dashboards/academic-staff`)
+**Purpose**: Day-to-day operational dashboard
+**Key Sections**:
+- ⭐ **Urgent Actions**: Teacher leave requests, student transfers, conflicts
+- My Classes management
+- Today's Schedule
+- Request Queue (student + teacher)
+- Pending Approvals
+
+**Missing API**: `GET /dashboards/academic-staff`
+
+**Impact**: Đây là dashboard QUAN TRỌNG NHẤT cho vai trò Academic Staff (Giáo vụ) - người xử lý hàng ngày!
+
+---
+
+#### ✅ 10.0C: Subject Leader Dashboard (`/dashboards/subject-leader`)
+**Purpose**: Curriculum design and management
+**Key Sections**:
+- My Courses (draft/submitted/approved/in-use)
+- PLO/CLO Management
+- Course Usage Analytics
+- Feedback on My Courses
+
+**Missing API**: `GET /dashboards/subject-leader`
+
+---
+
+#### ✅ 10.0D: QA Dashboard (`/dashboards/qa`)
+**Purpose**: Quality monitoring and reporting
+**Key Sections**:
+- Quality Alerts (low attendance, low ratings, CLO non-attainment)
+- My QA Reports
+- Student Feedback Analysis
+- Attendance & CLO Monitoring
+
+**Missing API**: `GET /dashboards/qa`
+
+---
+
+### 19.4 Course Approval Flow Corrections (Section 3.4)
+
+**Previous (AMBIGUOUS)**:
+```yaml
+- Button[approve]: "Phê duyệt" (MANAGER, CENTER_HEAD)  # ❌ SAI!
+```
+
+**Updated (CORRECT - per Business Context 2.2)**:
+```yaml
+- Button[submit]: "Gửi duyệt" (SUBJECT_LEADER only)
+- Button[approve]: "Phê duyệt" (MANAGER only - strategic approval)
+- Button[reject]: "Từ chối" (MANAGER only)
+```
+
+**Rationale**: Theo Business Context:
+- **Course Approval = STRATEGIC DECISION** → Only MANAGER approves (system-wide standardization)
+- **Class Approval = OPERATIONAL DECISION** → CENTER_HEAD (branch) OR MANAGER (cross-branch)
+
+---
+
+### 19.5 Missing API Endpoints Summary
+
+**⚠️ Backend Team: These endpoints MUST be implemented**
+
+#### Student Request APIs:
+```
+GET    /student-requests
+POST   /student-requests/:id/approve
+POST   /student-requests/:id/reject
+GET    /student-requests/makeup/available-sessions
+POST   /student-requests/:id/validate-transfer
+```
+
+#### Teacher Request APIs:
+```
+GET    /teacher-requests
+GET    /teacher-requests/:id/substitute-teachers  ⭐ CRITICAL
+POST   /teacher-requests/:id/approve
+POST   /teachers/:id/availability/overrides
+```
+
+#### Dashboard APIs:
+```
+GET    /dashboards/admin
+GET    /dashboards/academic-staff  ⭐ CRITICAL
+GET    /dashboards/subject-leader
+GET    /dashboards/qa
+```
+
+#### Attendance Lock APIs:
+```
+POST   /sessions/:id/attendance/unlock
+```
+(Plus add `is_locked`, `locked_at` fields to session response)
+
+---
+
+### 19.6 Data Model Additions Needed
+
+**student_requests table** (missing):
+```sql
+- id, student_id, request_type (absence|makeup|transfer)
+- target_session_id, makeup_session_id, target_class_id
+- effective_date, status, submitted_at, decided_at
+- decided_by, resolution, note
+```
+
+**teacher_requests table** (missing):
+```sql
+- id, teacher_id, session_id, request_type (leave|ot|reschedule|swap)
+- status, submitted_at, decided_at, decided_by
+- resolution (substitute|reschedule|cancel)
+- substitute_teacher_id, new_date, new_time, note
+```
+
+**teacher_availability_override** (for OT - may exist):
+```sql
+- id, teacher_id, date, start_time, end_time
+- is_available (true for OT registration)
+- reason, created_at
+```
+
+---
+
+### 19.7 UI/UX Consistency Rules (Updated)
+
+1. **Role-based rendering**:
+   - Always check `user.roles[]` before showing action buttons
+   - Hide/disable features not available to user's role
+
+2. **Request workflows**:
+   - All requests follow: submit → pending → approve/reject flow
+   - Show status badges: pending (yellow), approved (green), rejected (red)
+   - Urgent requests (leave): red badge
+
+3. **Conflict detection**:
+   - Show conflicts prominently (red badges, alerts)
+   - Provide suggested alternatives
+   - Block submission if critical conflicts exist
+
+4. **Attendance lock**:
+   - Always show lock status and countdown
+   - Disable inputs when locked (unless ADMIN/MANAGER)
+   - Audit trail for unlocks
+
+5. **Dashboard cards**:
+   - Use consistent KPI card format
+   - Color-code alerts: red (critical), yellow (warning), green (OK)
+   - Link to detail pages
+
+---
+
+### 19.8 Testing Checklist for Frontend Team
+
+**Role-based Access**:
+- [ ] ADMIN can access `/dashboards/admin`
+- [ ] ACADEMIC_STAFF navigates to `/dashboards/academic-staff` (NOT center-head)
+- [ ] SUBJECT_LEADER can submit courses, but only MANAGER can approve
+- [ ] CENTER_HEAD can approve classes (branch), MANAGER can approve (cross-branch)
+
+**Student Requests**:
+- [ ] Student can create absence/makeup/transfer requests
+- [ ] Academic Staff sees pending requests in dashboard
+- [ ] Makeup flow shows only sessions with same `course_session_id`
+- [ ] Transfer validation shows content gaps
+
+**Teacher Requests**:
+- [ ] Teacher can create leave/reschedule requests
+- [ ] Academic Staff must choose solution (substitute/reschedule/cancel) before approving leave
+- [ ] Substitute search prioritizes OT-registered teachers
+- [ ] OT registration creates availability override
+
+**Attendance Lock**:
+- [ ] Countdown shows correct time remaining
+- [ ] Inputs disabled after lock time
+- [ ] Only ADMIN/MANAGER can unlock
+- [ ] Unlock creates audit log
+
+**PLO/CLO Mapping**:
+- [ ] Mapping editor shows tree view PLO → CLO → Sessions
+- [ ] Can export mapping report
+- [ ] Course shows mapping completion %
+
+---
+
+### 19.9 Notes for Claude Code
+
+When implementing features from this document:
+
+1. **Always check Business Context first** (`docs/business-context.md`) for:
+   - User role definitions and authority
+   - Business rules and workflows
+   - Approval flows
+   - Data relationships
+
+2. **Role-based UI rendering**:
+   ```tsx
+   const userRoles = user.roles; // ['ACADEMIC_STAFF']
+
+   // ✅ CORRECT
+   {userRoles.includes('ACADEMIC_STAFF') && <Link to="/dashboards/academic-staff">Dashboard</Link>}
+
+   // ❌ WRONG (previous version)
+   {userRoles.includes('ACADEMIC_STAFF') && <Link to="/dashboards/center-head">Dashboard</Link>}
+   ```
+
+3. **Request handling patterns**:
+   - Student/Teacher request lists: Always filter by `status=pending` in urgent tab
+   - Request approval: Validate before approve (capacity, conflicts, content gaps)
+   - Leave requests: Must have resolution before approval
+
+4. **Attendance lock logic**:
+   ```tsx
+   const lockTime = session.end_time + system_config.attendance_lock_hours;
+   const isLocked = now() > lockTime;
+   const countdown = lockTime - now(); // Show in UI
+   ```
+
+5. **API integration**:
+   - Check `⚠️ MISSING in API` comments - may need mock data for development
+   - Coordinate with backend team for new endpoints
+   - Follow API response format from `api-design.md`
+
+---
+
+**Document Version: 2.0**
+**Generated From**: API Design Document v1.0 + Business Context v1.0
+**Last Updated**: 2025-10-19
+**Major Updates**:
+- Fixed dashboard role mappings (Academic Staff ≠ Center Head)
+- Added Student Request Management module
+- Added Teacher Request Management module
+- Added Attendance Lock functionality
+- Added PLO↔CLO↔Session mapping
+- Added 4 new dashboards (Admin, Academic Staff, Subject Leader, QA)
+- Corrected course approval flow (MANAGER only)
+- Documented 15+ missing API endpoints
+
+**Maintained by**: EMS Frontend Team
 
