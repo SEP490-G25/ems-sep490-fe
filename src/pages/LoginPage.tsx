@@ -50,7 +50,7 @@ export const LoginPage = () => {
       </div>
       <div className="bg-muted relative hidden lg:block">
         <img
-          src="https://images.unsplash.com/photo-1523050854058-8df90110c9f1?q=80&w=2071&auto=format&fit=crop"
+          src="/ems-login-thumbnail.jpg"
           alt="Education"
           className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
         />
