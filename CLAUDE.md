@@ -42,26 +42,35 @@ See `docs/business-context.md` for comprehensive business domain details.
 - **React 19.1.1** with TypeScript
 - **Vite 7.1.7** as build tool
 - **SWC** for Fast Refresh via `@vitejs/plugin-react-swc`
+- **Redux Toolkit 2.9.1** with RTK Query for state management
+- **React Router 7.9.4** for routing
 - **ESLint** with TypeScript and React plugins
-- **shadcn** for UI components
+- **shadcn/ui** + **Tailwind CSS 4** for UI components
+- **pnpm** as package manager
 
 ## Development Commands
 
 ```bash
 # Install dependencies
-npm install
+pnpm install
 
 # Start development server with HMR
-npm run dev
+pnpm dev
 
 # Build for production (runs TypeScript compiler + Vite build)
-npm run build
+pnpm build
 
 # Lint code
-npm run lint
+pnpm lint
 
 # Preview production build
-npm run preview
+pnpm preview
+
+# Type-check specific files without building
+pnpm exec tsc --noEmit [file paths]
+
+# Add shadcn/ui components
+pnpm dlx shadcn@latest add [component-name]
 ```
 
 ## TypeScript Configuration
@@ -90,31 +99,51 @@ src/
 │   │   ├── curriculum/  # Course and subject components
 │   │   ├── enrollment/  # Student enrollment components
 │   │   └── requests/    # Request handling components
-│   ├── layout/          # Layout components (Header, Sidebar, Footer)
+│   ├── layout/          # Layout components (Sidebar, MainLayout)
 │   └── shared/          # Shared/common components
+├── pages/               # Page components (one per route)
+├── routes/              # React Router configuration
+├── store/               # Redux Toolkit state management
+│   ├── api/             # RTK Query API definitions
+│   │   ├── baseApi.ts   # Base API configuration
+│   │   ├── authApi.ts   # Auth endpoints
+│   │   └── apiUtils.ts  # API utilities
+│   ├── slices/          # Redux slices
+│   │   └── authSlice.ts # Auth state slice
+│   ├── store.ts         # Store configuration
+│   ├── hooks.ts         # Typed Redux hooks (useAppDispatch, useAppSelector)
+│   └── index.ts         # Store exports
 ├── hooks/               # Custom React hooks
 ├── lib/                 # Utility functions and helpers
 ├── types/               # TypeScript type definitions
-├── services/            # API services and data fetching
-├── contexts/            # React Context providers
+├── services/            # Non-RTK Query API services (if needed)
 ├── assets/              # Static assets (images, icons)
 ├── styles/              # Global styles
 │   └── globals.css      # Global CSS with typography and theme definitions
 ├── App.tsx              # Main application component
-└── main.tsx             # Application entry point
+└── main.tsx             # Application entry point (with Redux Provider)
 
 docs/
-└── business-context.md  # Comprehensive business domain documentation
+├── business-context.md  # Comprehensive business domain documentation
+├── api-design.md        # API design and endpoints
+├── uiux-design.md       # UI/UX design guidelines
+└── sidebar-*.md         # Sidebar implementation guides
 ```
 
 ### Folder Organization Rules
 - **components/ui/**: Only shadcn/ui components, DO NOT modify structure
 - **components/features/**: Organize by business domain (attendance, schedule, etc.)
+- **components/layout/**: Layout components (Sidebar, MainLayout)
 - **components/shared/**: Only truly shared components used across multiple features
-- **hooks/**: Custom hooks following `use*` naming convention
+- **pages/**: Page-level components, typically one per route
+- **routes/**: React Router configuration and route definitions
+- **store/**: Redux Toolkit state management
+  - **store/api/**: RTK Query API endpoints (use `baseApi.injectEndpoints()`)
+  - **store/slices/**: Redux slices for client-side state
+  - Use typed hooks from `store/hooks.ts` (`useAppDispatch`, `useAppSelector`)
+- **hooks/**: Custom React hooks following `use*` naming convention
 - **types/**: Shared TypeScript interfaces and types, organized by domain
-- **services/**: API integration, one file per domain (e.g., `attendanceService.ts`)
-- **contexts/**: Global state management (Auth, Theme, User, etc.)
+- **services/**: Non-RTK Query services (prefer RTK Query for API calls)
 
 ## Key Business Roles (User Types)
 
@@ -187,9 +216,98 @@ Using modern ESLint flat config (`eslint.config.js`):
 
 ## Path Aliases
 
-Current configuration uses standard paths. When adding path aliases, update:
-- `vite.config.ts` - Add `resolve.alias`
-- `tsconfig.app.json` - Add `paths` mapping
+Path alias `@` → `src/` is configured in:
+- `vite.config.ts` - `resolve.alias`
+- `tsconfig.app.json` - `paths` mapping
+
+Use `@/` prefix for all imports from src directory (e.g., `import { Button } from '@/components/ui/button'`)
+
+## State Management with Redux Toolkit
+
+This project uses **Redux Toolkit** (RTK) and **RTK Query** for state management:
+
+### Redux Store Structure
+- **Store**: Configured in `src/store/store.ts`
+- **API Layer**: RTK Query base API in `src/store/api/baseApi.ts`
+- **Slices**: Redux slices in `src/store/slices/`
+- **Typed Hooks**: Use `useAppDispatch` and `useAppSelector` from `src/store/hooks.ts`
+
+### RTK Query Pattern
+RTK Query is the preferred method for all API calls:
+
+```typescript
+// Define API endpoints by injecting into baseApi
+// Example: src/store/api/authApi.ts
+export const authApi = baseApi.injectEndpoints({
+  endpoints: (builder) => ({
+    login: builder.mutation({
+      query: (credentials) => ({
+        url: '/auth/login',
+        method: 'POST',
+        body: credentials,
+      }),
+    }),
+    // More endpoints...
+  }),
+});
+
+export const { useLoginMutation } = authApi;
+```
+
+### Usage in Components
+```typescript
+import { useAppSelector, useAppDispatch } from '@/store/hooks';
+import { useLoginMutation } from '@/store/api/authApi';
+
+const LoginPage = () => {
+  const [login, { isLoading }] = useLoginMutation();
+  const user = useAppSelector(state => state.auth.user);
+
+  // Component logic...
+};
+```
+
+### When to Use Redux Slices vs RTK Query
+- **RTK Query**: For all server state (API data fetching, caching, mutations)
+- **Redux Slices**: For client-side state (UI state, theme, current user session)
+- **React State**: For local component state (form inputs, toggles)
+
+### Adding New API Endpoints
+1. Create new API file in `src/store/api/` (e.g., `courseApi.ts`)
+2. Use `baseApi.injectEndpoints()` pattern
+3. Export auto-generated hooks
+4. API endpoints are automatically added to the store
+
+### Adding New Redux Slices
+1. Create slice in `src/store/slices/`
+2. Add reducer to store in `src/store/store.ts`
+3. Use typed hooks for accessing state
+
+## Routing with React Router
+
+This project uses **React Router v7** for navigation:
+
+### Routing Structure
+- Route configuration in `src/routes/`
+- Page components in `src/pages/`
+- One page component per route (e.g., `LoginPage.tsx`, `DashboardPage.tsx`)
+
+### Route Patterns
+- Use React Router's latest features (v7+)
+- Implement role-based route protection for user permissions
+- Consider nested routes for complex layouts (e.g., dashboard with sidebar)
+
+### Navigation
+```typescript
+import { useNavigate, Link } from 'react-router-dom';
+
+// Programmatic navigation
+const navigate = useNavigate();
+navigate('/dashboard');
+
+// Declarative navigation
+<Link to="/courses">View Courses</Link>
+```
 
 ## UI/UX Guidelines
 
@@ -339,16 +457,24 @@ When Claude Code analyzes this repository, follow these guidelines:
   - Maintain mobile-first responsive patterns
 
 ### Scaffolding Components
-- Use **MCP commands** for scaffolding new shadcn/ui components:
+- Use **shadcn CLI** via pnpm for adding new UI components:
   ```bash
-  # Examples:
-  shadcn:add button card table
-  shadcn:add dialog sheet popover
-  shadcn:add input textarea select
-  shadcn:add badge avatar dropdown-menu
+  # Add single component
+  pnpm dlx shadcn@latest add button
+
+  # Add multiple components
+  pnpm dlx shadcn@latest add dialog sheet popover
+
+  # Add with auto-confirmation
+  pnpm dlx shadcn@latest add card --yes
+
+  # Add shadcn blocks (pre-built component patterns)
+  pnpm dlx shadcn@latest add @shadcn/login-02 --yes
+  pnpm dlx shadcn@latest add @shadcn/sidebar-02 --yes
   ```
 - After adding components, customize them in `src/components/ui/` if needed
 - Ensure new components follow the project's theme configuration
+- Use `--overwrite` flag to replace existing components if needed
 
 ### Business Context Awareness
 - Before implementing features, review `docs/business-context.md` for:
@@ -389,6 +515,8 @@ Claude Code should proactively:
 ### React Patterns
 - **Prefer functional components + hooks** over class components
 - Use React 19 hooks: `useState`, `useEffect`, `useCallback`, `useMemo`, `useContext`
+- Use Redux hooks: `useAppSelector`, `useAppDispatch` (from `@/store/hooks`)
+- Use RTK Query hooks for data fetching: `useLoginMutation`, `useGetCoursesQuery`, etc.
 - Keep components **small and composable** - single responsibility principle
 - Extract reusable logic into custom hooks
 - Example of good component structure:
@@ -416,16 +544,20 @@ Claude Code should proactively:
   ```
 
 ### Import Conventions
-- Use **alias `@` → `src`** for absolute imports (configure in `vite.config.ts` and `tsconfig.app.json`)
-- Use **relative imports** for local modules in the same directory or nearby:
+- Use **alias `@` → `src`** for all imports from src directory
+- Use **relative imports** for local modules in the same directory:
   ```tsx
   // ✅ Good: Alias for src paths
   import { Button } from '@/components/ui/button';
-  import { useAuth } from '@/hooks/useAuth';
+  import { useAppSelector } from '@/store/hooks';
+  import { useLoginMutation } from '@/store/api/authApi';
 
   // ✅ Good: Relative for local modules
   import { UserCard } from './UserCard';
-  import { formatDate } from '../utils/dateFormatter';
+  import { validateForm } from './utils';
+
+  // ❌ Avoid: Relative imports for src paths
+  import { Button } from '../../../components/ui/button';
   ```
 
 ### Component Organization
@@ -433,17 +565,26 @@ Claude Code should proactively:
 - Split large components into smaller sub-components
 - Extract shared logic into custom hooks
 - Separate concerns: presentation vs. business logic
+- Use container/presenter pattern when appropriate:
+  - **Container components**: Handle data fetching (RTK Query), state management
+  - **Presenter components**: Pure UI, receive data via props
 - Example structure:
   ```
+  pages/
+  └── AttendancePage.tsx       # Route-level container
+
   components/
-  ├── ui/              # shadcn/ui components
-  ├── features/        # Feature-specific components
-  │   ├── attendance/
-  │   │   ├── AttendanceList.tsx
-  │   │   ├── AttendanceRow.tsx
-  │   │   └── useAttendance.ts
-  │   └── schedule/
-  └── shared/          # Shared across features
+  ├── ui/                       # shadcn/ui components
+  ├── features/                 # Feature-specific components
+  │   └── attendance/
+  │       ├── AttendanceList.tsx      # Presenter
+  │       ├── AttendanceRow.tsx       # Presenter
+  │       └── AttendanceFilters.tsx   # Presenter
+  └── shared/                   # Shared across features
+
+  store/
+  └── api/
+      └── attendanceApi.ts      # RTK Query endpoints
   ```
 
 ### Code Quality
@@ -472,12 +613,46 @@ Claude Code should proactively:
 ## Common Workflows
 
 ### Adding a New Feature Module
-1. Check `docs/business-context.md` for business requirements
-2. Identify user role(s) and permissions
-3. Map to backend API endpoints (see backend API docs)
-4. Implement UI with role-based access control
-5. Add client-side validation matching business rules
-6. Handle approval workflows if applicable
+1. **Research**: Check `docs/business-context.md` for business requirements
+2. **Plan API Integration**:
+   - Identify backend API endpoints (see `docs/api-design.md`)
+   - Create RTK Query API file in `src/store/api/`
+   - Define queries and mutations
+3. **Create UI Components**:
+   - Create page component in `src/pages/`
+   - Create feature components in `src/components/features/[feature-name]/`
+   - Add route in `src/routes/`
+4. **Implement Business Logic**:
+   - Add client-side validation matching business rules
+   - Implement role-based access control
+   - Handle approval workflows if applicable
+5. **State Management** (if needed):
+   - Create Redux slice for client state in `src/store/slices/`
+   - Add reducer to store
+6. **Testing**: Verify all business rules and user roles are respected
+
+### Adding New API Endpoints
+1. Create or update API file in `src/store/api/`
+2. Use `baseApi.injectEndpoints()` pattern:
+   ```typescript
+   export const courseApi = baseApi.injectEndpoints({
+     endpoints: (builder) => ({
+       getCourses: builder.query<Course[], void>({
+         query: () => '/courses',
+       }),
+       createCourse: builder.mutation<Course, CreateCourseDto>({
+         query: (body) => ({
+           url: '/courses',
+           method: 'POST',
+           body,
+         }),
+       }),
+     }),
+   });
+
+   export const { useGetCoursesQuery, useCreateCourseMutation } = courseApi;
+   ```
+3. Use the auto-generated hooks in components
 
 ### Working with Schedules/Sessions
 - Sessions are auto-generated from course templates
@@ -493,13 +668,40 @@ All request types follow similar patterns:
 4. System executes changes upon approval
 5. Audit trail preserved
 
+## Documentation References
+
+This project includes comprehensive documentation in the `docs/` folder:
+
+- **[business-context.md](docs/business-context.md)**: Complete business domain documentation
+  - User roles and permissions
+  - Core entities and relationships
+  - Business rules and workflows
+  - Approval processes
+  - **Read this first** before implementing any feature
+
+- **[api-design.md](docs/api-design.md)**: Backend API design and endpoints
+  - API endpoint specifications
+  - Request/response formats
+  - Use this when creating RTK Query endpoints
+
+- **[uiux-design.md](docs/uiux-design.md)**: UI/UX design guidelines and patterns
+  - Design system details
+  - Component patterns
+  - User flows
+
+- **[sidebar-*.md](docs/)**: Sidebar implementation guides
+  - Sidebar setup and customization
+  - Navigation patterns
+
 ## Testing Strategy
 
 No test framework currently configured. When adding tests, consider:
 - Vitest (recommended for Vite projects)
 - React Testing Library for component tests
-- MSW for API mocking
+- MSW (Mock Service Worker) for mocking RTK Query API calls
 - Consider business rule validation as key test cases
+- Test Redux slices and selectors
+- Test RTK Query cache invalidation logic
 
 ## Future Enhancements
 
@@ -527,8 +729,10 @@ When implementing features in this codebase, ensure:
 - [ ] Strict TypeScript compliance (no `any`)
 - [ ] Functional components with hooks
 - [ ] Small, composable components
-- [ ] Proper imports (`@` for src/, relative for local)
+- [ ] Proper imports (`@/` for src paths, relative for local)
 - [ ] ESLint rules passing
+- [ ] Using RTK Query for API calls (not fetch/axios)
+- [ ] Using typed Redux hooks (`useAppSelector`, `useAppDispatch`)
 
 **Business Logic:**
 - [ ] Reviewed relevant sections in `docs/business-context.md`
