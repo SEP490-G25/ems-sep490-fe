@@ -17,7 +17,13 @@
       "Bash(pnpm dlx shadcn@latest add @shadcn/login-02 --yes)",
       "Bash(pnpm run build)",
       "Bash(pnpm exec tsc --noEmit src/components/login-form.tsx src/pages/LoginPage.tsx)",
-      "Bash(pnpm run lint)"
+      "Bash(pnpm run lint)",
+      "Bash(pnpm dlx shadcn@latest add sidebar --yes)",
+      "Bash(pnpm dlx shadcn@latest add sheet collapsible avatar dropdown-menu --yes)",
+      "Bash(pnpm exec tsc --noEmit)",
+      "Bash(pnpm dlx shadcn@latest add @shadcn/sidebar-02 --yes --overwrite)",
+      "Bash(pnpm dlx shadcn@latest add badge --yes)",
+      "Bash(pnpm exec tsc --noEmit src/components/layout/EMSSidebar.tsx src/components/layout/MainLayout.tsx)"
     ],
     "deny": [],
     "ask": []
