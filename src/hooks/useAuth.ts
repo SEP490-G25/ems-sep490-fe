@@ -29,13 +29,11 @@ export const useAuth = () => {
    */
   const login = useCallback(
     async (credentials: LoginRequestDTO) => {
-      console.log('🔷 useAuth.login() called with:', credentials);
       try {
-        const result = await loginMutation(credentials).unwrap();
-        console.log('✅ Login successful:', result);
+        await loginMutation(credentials).unwrap();
         // Auth state is automatically updated by authSlice extraReducers
       } catch (error) {
-        console.error('❌ Login failed:', error);
+        console.error('Login failed:', error);
         throw error;
       }
     },
