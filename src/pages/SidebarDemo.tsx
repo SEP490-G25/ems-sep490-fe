@@ -10,7 +10,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
-import { SidebarUser, UserRole } from '@/types/navigation';
+import type { SidebarUser, UserRole } from '@/types/navigation';
 import { getAllRoles } from '@/lib/navigation-config';
 import { ChevronDown, CheckCircle2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';

@@ -7,7 +7,6 @@ import {
   GraduationCap,
   BookOpen,
   Calendar,
-  UserCog,
   ClipboardList,
   Target,
   FolderOpen,
@@ -17,10 +16,9 @@ import {
   CheckSquare,
   MessageSquare,
   Award,
-  Bell,
   School,
 } from 'lucide-react';
-import { RoleNavigation, UserRole } from '@/types/navigation';
+import type { RoleNavigation, UserRole } from '@/types/navigation';
 
 /**
  * Navigation configuration for all user roles

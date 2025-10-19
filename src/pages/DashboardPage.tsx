@@ -1,17 +1,17 @@
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/hooks/useAuth';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { User } from 'lucide-react';
-import { SidebarUser } from '@/types/navigation';
+import type { SidebarUser } from '@/types/navigation';
 
 export const DashboardPage = () => {
   const { user, logout } = useAuth();
 
   // Convert auth user to sidebar user
   const sidebarUser: SidebarUser = {
-    name: user?.name || 'User',
+    name: user?.fullName || 'User',
     email: user?.email || '',
-    role: user?.role || 'STUDENT',
+    role: user?.roles?.[0] || 'STUDENT',
   };
 
   return (
@@ -21,7 +21,7 @@ export const DashboardPage = () => {
           <div>
             <h1 className="text-3xl font-bold">Dashboard</h1>
             <p className="text-muted-foreground mt-1">
-              Welcome back, {user?.name}
+              Welcome back, {user?.fullName}
             </p>
           </div>
 
@@ -41,7 +41,7 @@ export const DashboardPage = () => {
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Role</p>
-                  <p className="font-medium">{user?.role}</p>
+                  <p className="font-medium">{user?.roles?.join(', ')}</p>
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">User ID</p>

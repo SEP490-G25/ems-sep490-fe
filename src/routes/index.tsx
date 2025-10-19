@@ -3,7 +3,7 @@ import { LoginPage } from '@/pages/LoginPage';
 import { DashboardPage } from '@/pages/DashboardPage';
 import SidebarDemo from '@/pages/SidebarDemo';
 import { ProtectedRoute } from '@/components/shared/ProtectedRoute';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/hooks/useAuth';
 
 export const AppRouter = () => {
   const { isAuthenticated } = useAuth();

@@ -23,7 +23,9 @@
       "Bash(pnpm exec tsc --noEmit)",
       "Bash(pnpm dlx shadcn@latest add @shadcn/sidebar-02 --yes --overwrite)",
       "Bash(pnpm dlx shadcn@latest add badge --yes)",
-      "Bash(pnpm exec tsc --noEmit src/components/layout/EMSSidebar.tsx src/components/layout/MainLayout.tsx)"
+      "Bash(pnpm exec tsc --noEmit src/components/layout/EMSSidebar.tsx src/components/layout/MainLayout.tsx)",
+      "Bash(npm install @reduxjs/toolkit react-redux)",
+      "Bash(pnpm install @reduxjs/toolkit react-redux)"
     ],
     "deny": [],
     "ask": []

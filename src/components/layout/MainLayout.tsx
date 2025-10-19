@@ -1,6 +1,6 @@
-import { ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import { AppSidebar } from './AppSidebar';
-import { SidebarUser } from '@/types/navigation';
+import type { SidebarUser } from '@/types/navigation';
 import { SidebarProvider, SidebarInset, SidebarTrigger } from '@/components/ui/sidebar';
 import { Separator } from '@/components/ui/separator';
 import {

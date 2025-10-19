@@ -2,7 +2,7 @@ import * as React from 'react';
 import { ChevronRight, GraduationCap, LogOut, Settings, User as UserIcon } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { getNavigationForRole } from '@/lib/navigation-config';
-import { SidebarUser, UserRole } from '@/types/navigation';
+import type { SidebarUser } from '@/types/navigation';
 import {
   Collapsible,
   CollapsibleContent,
