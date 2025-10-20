@@ -12,6 +12,14 @@ export const DashboardPage = () => {
     name: user?.fullName || 'User',
     email: user?.email || '',
     role: user?.roles?.[0] || 'STUDENT',
+    // Pass primary branch (first branch) if available
+    primaryBranch: user?.branches?.[0]
+      ? {
+          id: user.branches[0].id,
+          code: user.branches[0].code,
+          name: user.branches[0].name,
+        }
+      : undefined,
   };
 
   return (
@@ -46,6 +54,14 @@ export const DashboardPage = () => {
                 <div>
                   <p className="text-sm text-muted-foreground">User ID</p>
                   <p className="font-medium">{user?.id}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Branches</p>
+                  <p className="font-medium">
+                    {user?.branches && user.branches.length > 0
+                      ? user.branches.map((b) => `${b.name} (${b.code})`).join(', ')
+                      : 'No branches assigned'}
+                  </p>
                 </div>
               </CardContent>
             </Card>

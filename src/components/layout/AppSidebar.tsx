@@ -62,6 +62,13 @@ export function AppSidebar({ user, onLogout, ...props }: AppSidebarProps) {
       .slice(0, 2);
   };
 
+  // Determine if role should show branch information
+  // ADMIN and MANAGER see system branding, others see their branch
+  const shouldShowBranchInfo =
+    user.role !== 'ADMIN' &&
+    user.role !== 'MANAGER' &&
+    user.primaryBranch;
+
   return (
     <Sidebar {...props}>
       {/* Header: User Profile */}
@@ -170,7 +177,7 @@ export function AppSidebar({ user, onLogout, ...props }: AppSidebarProps) {
         ))}
       </SidebarContent>
 
-      {/* Footer: Logo & Branding */}
+      {/* Footer: Branch Info or Logo & Branding */}
       <SidebarFooter>
         <SidebarMenu>
           <SidebarMenuItem>
@@ -180,10 +187,23 @@ export function AppSidebar({ user, onLogout, ...props }: AppSidebarProps) {
                   <GraduationCap className="h-4 w-4" />
                 </div>
                 <div className="flex flex-col items-start text-left text-sm leading-tight">
-                  <span className="truncate font-semibold">EMS</span>
-                  <span className="truncate text-xs text-muted-foreground">
-                    Education Management
-                  </span>
+                  {shouldShowBranchInfo ? (
+                    <>
+                      <span className="truncate font-semibold">
+                        {user.primaryBranch!.name}
+                      </span>
+                      <span className="truncate text-xs text-muted-foreground">
+                        Branch: {user.primaryBranch!.code}
+                      </span>
+                    </>
+                  ) : (
+                    <>
+                      <span className="truncate font-semibold">EMS</span>
+                      <span className="truncate text-xs text-muted-foreground">
+                        Education Management
+                      </span>
+                    </>
+                  )}
                 </div>
               </Link>
             </SidebarMenuButton>

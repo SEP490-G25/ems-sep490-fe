@@ -30,47 +30,62 @@ import { Badge } from '@/components/ui/badge';
 export default function SidebarDemo() {
   const [currentRole, setCurrentRole] = useState<UserRole>('ACADEMIC_STAFF');
 
+  // Mock branch data
+  const mockBranch = {
+    id: 1,
+    code: 'HN-DT',
+    name: 'Hanoi Downtown Center',
+  };
+
   // Mock user data for different roles
   const mockUsers: Record<UserRole, SidebarUser> = {
     ADMIN: {
       name: 'Admin User',
       email: 'admin@ems.edu',
       role: 'ADMIN',
+      // ADMIN doesn't need branch - shows system branding
     },
     MANAGER: {
       name: 'Nguyễn Văn Manager',
       email: 'manager@ems.edu',
       role: 'MANAGER',
+      // MANAGER doesn't need branch - shows system branding
     },
     CENTER_HEAD: {
       name: 'Trần Thị Director',
       email: 'director@ems.edu',
       role: 'CENTER_HEAD',
+      primaryBranch: mockBranch,
     },
     SUBJECT_LEADER: {
       name: 'Lê Văn Leader',
       email: 'leader@ems.edu',
       role: 'SUBJECT_LEADER',
+      primaryBranch: mockBranch,
     },
     ACADEMIC_STAFF: {
       name: 'Phạm Thị Giáo Vụ',
       email: 'giaovu@ems.edu',
       role: 'ACADEMIC_STAFF',
+      primaryBranch: mockBranch,
     },
     TEACHER: {
       name: 'Hoàng Văn Teacher',
       email: 'teacher@ems.edu',
       role: 'TEACHER',
+      primaryBranch: mockBranch,
     },
     STUDENT: {
       name: 'Nguyễn Thị Student',
       email: 'student@ems.edu',
       role: 'STUDENT',
+      primaryBranch: mockBranch,
     },
     QA: {
       name: 'QA Specialist',
       email: 'qa@ems.edu',
       role: 'QA',
+      primaryBranch: mockBranch,
     },
   };
 

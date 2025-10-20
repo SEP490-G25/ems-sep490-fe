@@ -71,4 +71,10 @@ export interface SidebarUser {
   role: UserRole;
   /** User's avatar URL (optional) */
   avatar?: string;
+  /** Primary branch information (for branch-specific roles) */
+  primaryBranch?: {
+    id: number;
+    code: string;
+    name: string;
+  };
 }
