@@ -503,10 +503,6 @@ export const navigationConfig: Record<UserRole, RoleNavigation> = {
         title: 'Schedule',
         url: '/student/schedule',
         icon: Calendar,
-        items: [
-          { title: 'My Schedule', url: '/student/schedule' },
-          { title: 'Upcoming Sessions', url: '/student/schedule/upcoming' },
-        ],
       },
       {
         title: 'Attendance',

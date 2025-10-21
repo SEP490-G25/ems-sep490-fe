@@ -19,6 +19,7 @@ interface SessionCardProps {
   compact?: boolean;
   onViewDetails?: (sessionId: number) => void;
   onSubmitAbsence?: (sessionId: number) => void;
+  onViewMaterials?: (sessionId: number) => void;
 }
 
 // Color coding based on attendance status (from spec)
@@ -64,6 +65,7 @@ export const SessionCard = ({
   compact = false,
   onViewDetails,
   onSubmitAbsence,
+  onViewMaterials,
 }: SessionCardProps) => {
   const statusColors = getStatusColor(session.attendanceStatus);
   const isUpcoming = session.attendanceStatus === 'planned';
@@ -170,16 +172,27 @@ export const SessionCard = ({
 
           {/* Actions */}
           {!compact && (
-            <div className="flex items-center gap-2 pt-2">
+            <div className="flex flex-col sm:flex-row items-stretch gap-2 pt-2 border-t">
               {onViewDetails && (
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={() => onViewDetails(session.id)}
-                  className="flex-1"
+                  className="flex-1 min-w-0"
                 >
-                  <FileText className="h-4 w-4 mr-1" />
+                  <FileText className="h-4 w-4 mr-2" />
                   Details
+                </Button>
+              )}
+              {onViewMaterials && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => onViewMaterials(session.id)}
+                  className="flex-1 min-w-0"
+                >
+                  <FileText className="h-4 w-4 mr-2" />
+                  Materials
                 </Button>
               )}
               {isUpcoming && onSubmitAbsence && (
@@ -187,8 +200,9 @@ export const SessionCard = ({
                   variant="outline"
                   size="sm"
                   onClick={() => onSubmitAbsence(session.id)}
-                  className="flex-1"
+                  className="flex-1 min-w-0"
                 >
+                  <AlertCircle className="h-4 w-4 mr-2" />
                   Submit Absence
                 </Button>
               )}

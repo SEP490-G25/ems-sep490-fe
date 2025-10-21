@@ -241,6 +241,21 @@ export const StudentSchedulePage = () => {
     setFilters({ ...filters, ...newFilters });
   };
 
+  const handleViewDetails = (sessionId: number) => {
+    // TODO: Navigate to session detail page or open modal
+    console.log('View details for session:', sessionId);
+  };
+
+  const handleSubmitAbsence = (sessionId: number) => {
+    // TODO: Navigate to absence request form with pre-filled session
+    console.log('Submit absence for session:', sessionId);
+  };
+
+  const handleViewMaterials = (sessionId: number) => {
+    // TODO: Navigate to materials page or open materials modal
+    console.log('View materials for session:', sessionId);
+  };
+
   return (
     <MainLayout user={sidebarUser} onLogout={logout}>
       <div className="p-4 lg:p-8">
@@ -256,22 +271,30 @@ export const StudentSchedulePage = () => {
           {/* Summary Panel */}
           <ScheduleSummaryPanel summary={mockScheduleSummary} />
 
-          {/* Filters */}
-          <ScheduleFilters
-            classOptions={mockClassOptions}
-            currentFilters={filters}
-            onFilterChange={handleFilterChange}
-          />
-
-          {/* Tabs for Calendar and List Views */}
+          {/* Filters and Tabs in same row */}
           <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'calendar' | 'list')}>
-            <TabsList className="grid w-full max-w-md grid-cols-2">
-              <TabsTrigger value="list">List View</TabsTrigger>
-              <TabsTrigger value="calendar">Timetable View</TabsTrigger>
-            </TabsList>
+            <div className="flex flex-col justify-between lg:flex-row lg:items-end gap-4">
+              {/* Filters */}
+              <ScheduleFilters
+                classOptions={mockClassOptions}
+                currentFilters={filters}
+                onFilterChange={handleFilterChange}
+              />
+
+              {/* Tabs */}
+              <TabsList className="grid w-full max-w-md grid-cols-2">
+                <TabsTrigger value="list">List View</TabsTrigger>
+                <TabsTrigger value="calendar">Timetable View</TabsTrigger>
+              </TabsList>
+            </div>
 
             <TabsContent value="list" className="mt-6">
-              <ScheduleListView sessions={filteredSessions} />
+              <ScheduleListView
+                sessions={filteredSessions}
+                onViewDetails={handleViewDetails}
+                onSubmitAbsence={handleSubmitAbsence}
+                onViewMaterials={handleViewMaterials}
+              />
             </TabsContent>
 
             <TabsContent value="calendar" className="mt-6">

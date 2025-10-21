@@ -7,6 +7,7 @@ interface ScheduleListViewProps {
   sessions: ScheduleSession[];
   onViewDetails?: (sessionId: number) => void;
   onSubmitAbsence?: (sessionId: number) => void;
+  onViewMaterials?: (sessionId: number) => void;
 }
 
 interface GroupedSessions {
@@ -18,6 +19,7 @@ export const ScheduleListView = ({
   sessions,
   onViewDetails,
   onSubmitAbsence,
+  onViewMaterials,
 }: ScheduleListViewProps) => {
   // Group sessions by date
   const groupedSessions = useMemo<GroupedSessions[]>(() => {
@@ -87,6 +89,7 @@ export const ScheduleListView = ({
                   showDate={false} // Date is shown in header
                   onViewDetails={onViewDetails}
                   onSubmitAbsence={onSubmitAbsence}
+                  onViewMaterials={onViewMaterials}
                 />
               ))}
             </div>
