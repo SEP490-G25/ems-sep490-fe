@@ -30,7 +30,8 @@
       "Bash(pnpm install date-fns)",
       "Bash(pnpm exec tsc --noEmit src/pages/DashboardPage.tsx)",
       "Bash(pnpm dlx shadcn@latest add tabs --yes)",
-      "Bash(pnpm dlx:*)"
+      "Bash(pnpm dlx:*)",
+      "Bash(pnpm install:*)"
     ],
     "deny": [],
     "ask": []

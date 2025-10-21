@@ -46,6 +46,13 @@ export function MainLayout({
 }: MainLayoutProps) {
   return (
     <SidebarProvider>
+      {/* Skip to main content link for accessibility */}
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:m-4 focus:p-4 focus:bg-primary focus:text-primary-foreground focus:rounded-md focus:outline-none focus:ring-2 focus:ring-ring"
+      >
+        Skip to main content
+      </a>
       <AppSidebar user={user} onLogout={onLogout} />
       <SidebarInset>
         {/* Header with toggle and breadcrumb */}
@@ -62,7 +69,7 @@ export function MainLayout({
         </header>
 
         {/* Main content */}
-        <main className="flex flex-1 flex-col">
+        <main id="main-content" className="flex flex-1 flex-col">
           {children}
         </main>
       </SidebarInset>

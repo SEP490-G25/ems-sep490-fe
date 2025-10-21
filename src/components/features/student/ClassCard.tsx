@@ -52,9 +52,9 @@ export const ClassCard = ({ classItem, onViewDetail }: ClassCardProps) => {
   };
 
   const getAttendanceColor = (rate: number) => {
-    if (rate >= 80) return 'text-green-600 dark:text-green-400';
-    if (rate >= 60) return 'text-yellow-600 dark:text-yellow-400';
-    return 'text-red-600 dark:text-red-400';
+    if (rate >= 80) return 'text-success';
+    if (rate >= 60) return 'text-warning';
+    return 'text-destructive';
   };
 
   const progressPercentage = (classItem.currentSession / classItem.totalSessions) * 100;

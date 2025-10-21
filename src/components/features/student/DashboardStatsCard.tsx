@@ -35,7 +35,7 @@ export const DashboardStatsCard = ({
         {trend && (
           <p
             className={`text-xs mt-1 ${
-              trend.isPositive ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
+              trend.isPositive ? 'text-success' : 'text-destructive'
             }`}
           >
             {trend.isPositive ? '+' : ''}

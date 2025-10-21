@@ -214,7 +214,7 @@ export const StudentDashboardPage = () => {
   return (
     <MainLayout user={sidebarUser} onLogout={logout}>
       <div className="p-4 lg:p-8">
-        <div className="max-w-7xl mx-auto space-y-6">
+        <div className="max-w-7xl mx-auto space-y-8">
           {/* Header */}
           <div>
             <h1 className="text-3xl font-bold">My Dashboard</h1>

@@ -356,7 +356,7 @@ Summary Panel:
 - Tappable session blocks open detail modal
 - Swipe gestures for date navigation on mobile
 
-**Priority:** **HIGH (MVP Phase 1)**
+**DONE**
 
 ---
 

@@ -82,7 +82,7 @@ export function AppSidebar({ user, onLogout, ...props }: AppSidebarProps) {
                   className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
                 >
                   <Avatar className="h-8 w-8">
-                    <AvatarImage src={user.avatar} alt={user.name} />
+                    <AvatarImage src={user.avatar} alt={`${user.name} profile picture`} />
                     <AvatarFallback>{getUserInitials(user.name)}</AvatarFallback>
                   </Avatar>
                   <div className="flex flex-col items-start text-left text-sm leading-tight">
@@ -91,7 +91,7 @@ export function AppSidebar({ user, onLogout, ...props }: AppSidebarProps) {
                       {navigation.roleName}
                     </span>
                   </div>
-                  <ChevronRight className="ml-auto" />
+                  <ChevronRight className="ml-auto" aria-hidden="true" />
                 </SidebarMenuButton>
               </DropdownMenuTrigger>
               <DropdownMenuContent className="w-56" align="end" side="right">
@@ -99,19 +99,19 @@ export function AppSidebar({ user, onLogout, ...props }: AppSidebarProps) {
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild>
                   <Link to="/profile">
-                    <UserIcon className="mr-2 h-4 w-4" />
+                    <UserIcon className="mr-2 h-4 w-4" aria-hidden="true" />
                     Profile
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
                   <Link to="/settings">
-                    <Settings className="mr-2 h-4 w-4" />
+                    <Settings className="mr-2 h-4 w-4" aria-hidden="true" />
                     Settings
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={onLogout} className="text-destructive">
-                  <LogOut className="mr-2 h-4 w-4" />
+                  <LogOut className="mr-2 h-4 w-4" aria-hidden="true" />
                   Logout
                 </DropdownMenuItem>
               </DropdownMenuContent>

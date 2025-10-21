@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { LoginForm } from '@/components/login-form';
 import { GraduationCap } from 'lucide-react';
+import { toast } from '@/lib/toast';
 
 export const LoginPage = () => {
   const [email, setEmail] = useState('');
@@ -17,9 +18,12 @@ export const LoginPage = () => {
 
     try {
       await login({ email, password });
+      toast.success('Login successful', 'Welcome back to EMS!');
       navigate('/dashboard');
-    } catch {
-      setError('Invalid email or password. Please try again.');
+    } catch (error) {
+      const errorMessage = 'Invalid email or password. Please try again.';
+      setError(errorMessage);
+      toast.error('Login failed', errorMessage);
     }
   };
 
@@ -51,7 +55,7 @@ export const LoginPage = () => {
       <div className="bg-muted relative hidden lg:block">
         <img
           src="/ems-login-thumbnail.jpg"
-          alt="Education"
+          alt="Students collaborating in a modern classroom environment with digital learning tools"
           className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
         />
       </div>
