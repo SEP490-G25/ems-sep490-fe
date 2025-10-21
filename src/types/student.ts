@@ -165,3 +165,47 @@ export interface StudentClassFilter {
   modalityType?: 'offline' | 'online' | 'hybrid' | 'all';
   searchTerm?: string;
 }
+
+// Schedule-specific types
+export interface ScheduleSession {
+  id: number;
+  classId: number;
+  className: string;
+  classCode: string;
+  sessionNumber: number;
+  title: string;
+  date: string; // ISO date string
+  startTime: string; // HH:mm format
+  endTime: string; // HH:mm format
+  duration: number; // in minutes
+  teacherName: string;
+  teacherId: number;
+  roomName?: string;
+  zoomLink?: string;
+  modalityType: 'offline' | 'online' | 'hybrid';
+  attendanceStatus: 'present' | 'absent' | 'late' | 'excused' | 'planned';
+  isMakeup: boolean;
+  note?: string; // Reason for absence/late if applicable
+}
+
+export interface ScheduleSummary {
+  thisWeek: {
+    totalSessions: number;
+    present: number;
+    absent: number;
+    late: number;
+    excused: number;
+    planned: number;
+  };
+  thisMonth: {
+    totalSessions: number;
+    attendanceRate: number;
+  };
+}
+
+export interface ScheduleFilter {
+  classId?: number | null;
+  dateFrom?: string;
+  dateTo?: string;
+  attendanceStatus?: 'present' | 'absent' | 'late' | 'excused' | 'planned' | 'all';
+}

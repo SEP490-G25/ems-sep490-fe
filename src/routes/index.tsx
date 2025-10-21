@@ -4,6 +4,7 @@ import { DashboardPage } from '@/pages/DashboardPage';
 import { StudentDashboardPage } from '@/pages/StudentDashboardPage';
 import { StudentClassesPage } from '@/pages/StudentClassesPage';
 import { StudentClassDetailPage } from '@/pages/StudentClassDetailPage';
+import { StudentSchedulePage } from '@/pages/StudentSchedulePage';
 import SidebarDemo from '@/pages/SidebarDemo';
 import { ProtectedRoute } from '@/components/shared/ProtectedRoute';
 import { useAuth } from '@/hooks/useAuth';
@@ -49,6 +50,14 @@ export const AppRouter = () => {
           element={
             <ProtectedRoute allowedRoles={['STUDENT']}>
               <StudentClassDetailPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/student/schedule"
+          element={
+            <ProtectedRoute allowedRoles={['STUDENT']}>
+              <StudentSchedulePage />
             </ProtectedRoute>
           }
         />

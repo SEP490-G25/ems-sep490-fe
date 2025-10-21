@@ -259,10 +259,7 @@ export const StudentDashboardPage = () => {
             {/* Upcoming Sessions */}
             <UpcomingSessionsCard
               sessions={dashboardData.upcomingSessions.slice(0, 3)}
-              onViewAll={() => {
-                // TODO: Navigate to schedule page (when implemented)
-                console.log('View all sessions');
-              }}
+              onViewAll={() => navigate('/student/schedule')}
             />
 
             {/* Recent Scores */}
