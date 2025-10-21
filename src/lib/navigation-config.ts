@@ -491,7 +491,7 @@ export const navigationConfig: Record<UserRole, RoleNavigation> = {
     navMain: [
       {
         title: 'Dashboard',
-        url: '/student/dashboard',
+        url: '/dashboards/student',
         icon: LayoutDashboard,
       },
       {

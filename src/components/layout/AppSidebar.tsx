@@ -122,59 +122,83 @@ export function AppSidebar({ user, onLogout, ...props }: AppSidebarProps) {
 
       {/* Content: Navigation */}
       <SidebarContent className="gap-0">
-        {navigation.navMain.map((item) => (
-          <Collapsible
-            key={item.url}
-            title={item.title}
-            defaultOpen
-            className="group/collapsible"
-          >
-            <SidebarGroup>
-              <SidebarGroupLabel
-                asChild
-                className="group/label text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground text-sm"
+        {navigation.navMain.map((item) => {
+          // If item has sub-items, render as collapsible
+          if (item.items && item.items.length > 0) {
+            return (
+              <Collapsible
+                key={item.url}
+                title={item.title}
+                defaultOpen
+                className="group/collapsible"
               >
-                <CollapsibleTrigger>
-                  <div className="flex items-center gap-2">
-                    {item.icon && <item.icon className="h-4 w-4" />}
-                    <span>{item.title}</span>
-                  </div>
-                  {item.badge && (
-                    <Badge variant="default" className="ml-auto mr-2">
-                      {item.badge}
-                    </Badge>
-                  )}
-                  <ChevronRight className="ml-auto transition-transform group-data-[state=open]/collapsible:rotate-90" />
-                </CollapsibleTrigger>
-              </SidebarGroupLabel>
-              {item.items && item.items.length > 0 && (
-                <CollapsibleContent>
-                  <SidebarGroupContent>
-                    <SidebarMenu>
-                      {item.items.map((subItem) => (
-                        <SidebarMenuItem key={subItem.url}>
-                          <SidebarMenuButton
-                            asChild
-                            isActive={location.pathname === subItem.url}
-                          >
-                            <Link to={subItem.url}>
-                              <span>{subItem.title}</span>
-                              {subItem.badge && (
-                                <Badge variant="secondary" className="ml-auto">
-                                  {subItem.badge}
-                                </Badge>
-                              )}
-                            </Link>
-                          </SidebarMenuButton>
-                        </SidebarMenuItem>
-                      ))}
-                    </SidebarMenu>
-                  </SidebarGroupContent>
-                </CollapsibleContent>
-              )}
+                <SidebarGroup>
+                  <SidebarGroupLabel
+                    asChild
+                    className="group/label text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground text-sm"
+                  >
+                    <CollapsibleTrigger>
+                      <div className="flex items-center gap-2">
+                        {item.icon && <item.icon className="h-4 w-4" />}
+                        <span>{item.title}</span>
+                      </div>
+                      {item.badge && (
+                        <Badge variant="default" className="ml-auto mr-2">
+                          {item.badge}
+                        </Badge>
+                      )}
+                      <ChevronRight className="ml-auto transition-transform group-data-[state=open]/collapsible:rotate-90" />
+                    </CollapsibleTrigger>
+                  </SidebarGroupLabel>
+                  <CollapsibleContent>
+                    <SidebarGroupContent>
+                      <SidebarMenu>
+                        {item.items.map((subItem) => (
+                          <SidebarMenuItem key={subItem.url}>
+                            <SidebarMenuButton
+                              asChild
+                              isActive={location.pathname === subItem.url}
+                            >
+                              <Link to={subItem.url}>
+                                <span>{subItem.title}</span>
+                                {subItem.badge && (
+                                  <Badge variant="secondary" className="ml-auto">
+                                    {subItem.badge}
+                                  </Badge>
+                                )}
+                              </Link>
+                            </SidebarMenuButton>
+                          </SidebarMenuItem>
+                        ))}
+                      </SidebarMenu>
+                    </SidebarGroupContent>
+                  </CollapsibleContent>
+                </SidebarGroup>
+              </Collapsible>
+            );
+          }
+
+          // If item has no sub-items, render as direct clickable link
+          return (
+            <SidebarGroup key={item.url}>
+              <SidebarMenu>
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild isActive={location.pathname === item.url}>
+                    <Link to={item.url}>
+                      {item.icon && <item.icon className="h-4 w-4" />}
+                      <span>{item.title}</span>
+                      {item.badge && (
+                        <Badge variant="default" className="ml-auto">
+                          {item.badge}
+                        </Badge>
+                      )}
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              </SidebarMenu>
             </SidebarGroup>
-          </Collapsible>
-        ))}
+          );
+        })}
       </SidebarContent>
 
       {/* Footer: Branch Info or Logo & Branding */}

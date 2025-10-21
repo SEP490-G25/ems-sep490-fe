@@ -1,11 +1,36 @@
 import { useAuth } from '@/hooks/useAuth';
+import { Navigate } from 'react-router-dom';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { User } from 'lucide-react';
 import type { SidebarUser } from '@/types/navigation';
+import type { UserRole } from '@/types/auth';
 
 export const DashboardPage = () => {
   const { user, logout } = useAuth();
+
+  // Redirect to role-specific dashboard based on user role
+  // Based on uiux-design.md section 1.2 User Dashboard Landing
+  if (user?.roles && user.roles.length > 0) {
+    const primaryRole = user.roles[0] as UserRole;
+
+    const roleDashboardMap: Record<UserRole, string> = {
+      ADMIN: '/dashboards/admin',
+      MANAGER: '/dashboards/manager',
+      CENTER_HEAD: '/dashboards/center-head',
+      SUBJECT_LEADER: '/dashboards/subject-leader',
+      ACADEMIC_STAFF: '/dashboards/academic-staff',
+      TEACHER: '/dashboards/teacher',
+      STUDENT: '/dashboards/student',
+      QA: '/dashboards/qa',
+    };
+
+    const targetDashboard = roleDashboardMap[primaryRole];
+
+    if (targetDashboard) {
+      return <Navigate to={targetDashboard} replace />;
+    }
+  }
 
   // Convert auth user to sidebar user
   const sidebarUser: SidebarUser = {

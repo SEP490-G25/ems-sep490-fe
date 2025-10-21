@@ -1,6 +1,9 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { LoginPage } from '@/pages/LoginPage';
 import { DashboardPage } from '@/pages/DashboardPage';
+import { StudentDashboardPage } from '@/pages/StudentDashboardPage';
+import { StudentClassesPage } from '@/pages/StudentClassesPage';
+import { StudentClassDetailPage } from '@/pages/StudentClassDetailPage';
 import SidebarDemo from '@/pages/SidebarDemo';
 import { ProtectedRoute } from '@/components/shared/ProtectedRoute';
 import { useAuth } from '@/hooks/useAuth';
@@ -22,6 +25,30 @@ export const AppRouter = () => {
           element={
             <ProtectedRoute>
               <DashboardPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboards/student"
+          element={
+            <ProtectedRoute allowedRoles={['STUDENT']}>
+              <StudentDashboardPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/student/classes"
+          element={
+            <ProtectedRoute allowedRoles={['STUDENT']}>
+              <StudentClassesPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/student/classes/:classId"
+          element={
+            <ProtectedRoute allowedRoles={['STUDENT']}>
+              <StudentClassDetailPage />
             </ProtectedRoute>
           }
         />
